@@ -102,9 +102,8 @@ public class SensorService extends Service implements SensorEventListener {
         if(lux >= lux_border) toSet = true;
         else toSet = false;
 
-        setHbm(toSet);
-
         if(toSet != isHbmEnabled) {
+            setHbm(toSet);
             lastTime = System.currentTimeMillis();
             hbm_lock = true;
             isHbmEnabled = toSet;
