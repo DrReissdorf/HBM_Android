@@ -97,18 +97,26 @@ public class SensorService extends Service implements SensorEventListener {
     }
 
     private void automaticHbm() {
-        boolean toSet;
+        boolean changed = false;
+        boolean toSet = false;
 
-        if(lux >= lux_border) toSet = true;
-        else toSet = false;
-
-        if(toSet != isHbmEnabled) {
-            setHbm(toSet);
-            lastTime = System.currentTimeMillis();
-            hbm_lock = true;
-            isHbmEnabled = toSet;
+        if(lux >= lux_border) {
+            changed = true;
+            toSet = true;
+        }
+        else if(lux < lux_border*0.5) {
+            changed = true;
+            toSet = false;
         }
 
+        if(changed) {
+            if(toSet != isHbmEnabled) {
+                setHbm(toSet);
+                lastTime = System.currentTimeMillis();
+                if(toSet) hbm_lock = true;  //only lock if screen lights up
+                isHbmEnabled = toSet;
+            }
+        }
     }
 
     private class LuxThread extends Thread {

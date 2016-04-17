@@ -178,6 +178,8 @@ public class MainActivity extends AppCompatActivity {
                 sleep(100);
             }
 
+            myService.setHbm(false);
+
             while(!exit) {
                 sleep(1000);
                 runOnUiThread(new Runnable() {
