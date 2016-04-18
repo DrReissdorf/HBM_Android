@@ -61,7 +61,14 @@ public class MainActivity extends AppCompatActivity {
                     onButton.setEnabled(false);
                     offButton.setEnabled(false);
                 } else {
-                    if(myService != null) myService.stopService();
+                    if(myService != null) {
+                        myService.stopService();
+                        try {
+                            context.unbindService(myConn);
+                        } catch (IllegalArgumentException e){
+                            Log.v("HBM","SwitchListener() couldnt unbind");
+                        }
+                    }
                     onButton.setEnabled(true);
                     offButton.setEnabled(true);
                 }

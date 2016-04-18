@@ -57,7 +57,6 @@ public class SensorService extends Service implements SensorEventListener {
     }
 
     public void stopService() {
-        luxThread.exit();
         stopSelf();
     }
 
