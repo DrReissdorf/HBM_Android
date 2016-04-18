@@ -16,63 +16,55 @@ import android.widget.Toast;
 import eu.chainfire.libsuperuser.Shell;
 
 public class SensorService extends Service implements SensorEventListener {
-    /* SENSOR VARIABLES */
-    private SensorManager mSensorManager;
-    private android.hardware.Sensor mLight;
+    /* SENSOR VARIABLE */
     private float lux;
 
     /* SHARED PREFERENCES */
     private SharedPreferences prefs;
 
     /* HBM VARIABLES */
-    private int NO_AUTO_HBM_SLEEP = 2000;
-    private int CHECK_LUX_RATE = 1000;
+    private final int NO_AUTO_HBM_SLEEP = 2000;
+    private final int CHECK_LUX_RATE = 1000;
     private final float REDUCE_LUX_MULTIPLIER = 0.75f;
+    private final int NUMBER_OF_LUX_VALUES = 25;
+    private final int SLEEP_BETWEEN_LUX_VALUES = 200;
     private boolean isHbmEnabled = false;
     private boolean isHbmAutoMode;
     private int lux_border;
-    private final int NUMBER_OF_LUX_VALUES = 25;
-    private final int SLEEP_BETWEEN_LUX_VALUES = 200;
-    private LuxThread luxThread;
+
 
     @Override
     public void onCreate() {
         Log.v("DEMO","##### Service - onCreate() #####");
 
+        /************************** SENSOR LISTENER ************************************/
+        SensorManager mSensorManager;
+        android.hardware.Sensor mLight;
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
+        /********************************************************************************/
 
-        prefs = getSharedPreferences(SharedPrefStrings.SHARED_PREFS_KEY,MODE_PRIVATE);
         loadPrefs();
 
-        luxThread = new LuxThread();
-        luxThread.start();
-    }
-
-    public void onDestroy() {
-        Log.v("DEMO","##### Service - onDestroy() #####");
-        if(luxThread != null) luxThread.exit();
+        new LuxThread().start();
     }
 
     private void loadPrefs() {
+        prefs = getSharedPreferences(SharedPrefStrings.SHARED_PREFS_KEY,MODE_PRIVATE);
         lux_border = prefs.getInt(SharedPrefStrings.LUX_BORDER_STRING,2000);
         isHbmAutoMode = prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false);
     }
 
-    public void stopService() {
-        stopSelf();
-    }
-
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.v("DEMO","##### Service - onUnbind() #####");
+        Log.v("HBM","##### Service - onUnbind() #####");
         return true;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.v("DEMO","##### Service - onStartCommand() #####");
+        Log.v("HBM","##### Service - onStartCommand() #####");
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
         return START_STICKY;
@@ -101,13 +93,11 @@ public class SensorService extends Service implements SensorEventListener {
     }
 
     private class LuxThread extends Thread {
-        private boolean exit = false;
-
         public void run() {
             if(!Shell.SU.available()) {
                 Shell.SU.run("");
 
-                while(!Shell.SU.available() && !exit) try {
+                while(!Shell.SU.available()) try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -119,7 +109,7 @@ public class SensorService extends Service implements SensorEventListener {
             lux = 0;
             postToastOnMainThread("HBM-Service running");
 
-            while(!exit) {
+            while(true) {
                 try {
                     sleep(CHECK_LUX_RATE);
 
@@ -132,20 +122,20 @@ public class SensorService extends Service implements SensorEventListener {
                                 setHbm(true);
                             }
                         } else {
-                            Log.v("HBM SERVICE","Checking lux values...");
+                            Log.v("HBM SERVICE","Getting lux value every "+SLEEP_BETWEEN_LUX_VALUES+"ms for "+NUMBER_OF_LUX_VALUES+" times...");
                             for(int i=0 ; i<NUMBER_OF_LUX_VALUES ; i++) {
                                 sleep(SLEEP_BETWEEN_LUX_VALUES);
                                 luxAdd += lux;
                             }
 
-                            int temp = luxAdd/NUMBER_OF_LUX_VALUES;
+                            int averageLux = luxAdd/NUMBER_OF_LUX_VALUES;
                             float multipliedBorder = lux_border*REDUCE_LUX_MULTIPLIER;
-                            if(temp < multipliedBorder) {
-                                Log.v("HBM SERVICE","Diabling HBM! LuxAdd/NUMBER_OF_LUX_VALUES: "+temp+" disable border: "+multipliedBorder);
+                            if(averageLux < multipliedBorder) {
+                                Log.v("HBM SERVICE","Diabling HBM! Average Lux-Value: "+averageLux+". Disable-border: "+multipliedBorder);
                                 setHbm(false);
                                 isHbmEnabled = false;
                             } else {
-                                Log.v("HBM SERVICE","Keeping HBM enabled! LuxAdd/NUMBER_OF_LUX_VALUES: "+temp+" disable border: "+multipliedBorder);
+                                Log.v("HBM SERVICE","Keeping HBM enabled! Average Lux-Value: "+averageLux+". Disable-border: "+multipliedBorder);
                                 setHbm(true);
                             }
                         }
@@ -156,10 +146,6 @@ public class SensorService extends Service implements SensorEventListener {
                     e.printStackTrace();
                 }
             }
-        }
-
-        private void exit() {
-            exit = true;
         }
     }
 
