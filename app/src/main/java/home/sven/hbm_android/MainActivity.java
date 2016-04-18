@@ -1,14 +1,10 @@
 package home.sven.hbm_android;
 
-import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -20,9 +16,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import eu.chainfire.libsuperuser.Shell;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -55,13 +48,13 @@ public class MainActivity extends AppCompatActivity {
                 if (myService != null) myService.setHbmAutoMode(isChecked);
                 if(isChecked) {
                     if(myService != null) {
-                        Intent serviceIntent = new Intent(context, SensorService.class);
-                        context.startService(serviceIntent);
+                        connectService();
                     }
                     onButton.setEnabled(false);
                     offButton.setEnabled(false);
                 } else {
                     if(myService != null) {
+                        myService.setHbm(false);
                         myService.stopService();
                         try {
                             context.unbindService(myConn);
