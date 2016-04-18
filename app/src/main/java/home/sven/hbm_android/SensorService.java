@@ -19,21 +19,20 @@ public class SensorService extends Service implements SensorEventListener {
     /* SENSOR VARIABLES */
     private SensorManager mSensorManager;
     private android.hardware.Sensor mLight;
-    private int lux;
+    private float lux;
 
     /* SHARED PREFERENCES */
     private SharedPreferences prefs;
-    private final String SHARED_PREFS_KEY = "HBM_ANDROID";
-    private final String LUX_BORDER_STRING = "lux_border";
 
     /* HBM VARIABLES */
+    private int NO_AUTO_HBM_SLEEP = 2000;
     private int CHECK_LUX_RATE = 1000;
     private final float REDUCE_LUX_MULTIPLIER = 0.75f;
     private boolean isHbmEnabled = false;
-    private boolean isHbmAutoMode = true;
+    private boolean isHbmAutoMode;
     private int lux_border;
-    private final int NUMBER_OF_LUX_VALUES = 50;
-    private final int SLEEP_BETWEEN_LUX_VALUES = 100;
+    private final int NUMBER_OF_LUX_VALUES = 25;
+    private final int SLEEP_BETWEEN_LUX_VALUES = 200;
     private LuxThread luxThread;
 
     @Override
@@ -44,8 +43,8 @@ public class SensorService extends Service implements SensorEventListener {
         mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
 
-        prefs = getSharedPreferences(SHARED_PREFS_KEY,MODE_PRIVATE);
-        lux_border = prefs.getInt(LUX_BORDER_STRING,2000);
+        prefs = getSharedPreferences(SharedPrefStrings.SHARED_PREFS_KEY,MODE_PRIVATE);
+        loadPrefs();
 
         luxThread = new LuxThread();
         luxThread.start();
@@ -54,6 +53,11 @@ public class SensorService extends Service implements SensorEventListener {
     public void onDestroy() {
         Log.v("DEMO","##### Service - onDestroy() #####");
         if(luxThread != null) luxThread.exit();
+    }
+
+    private void loadPrefs() {
+        lux_border = prefs.getInt(SharedPrefStrings.LUX_BORDER_STRING,2000);
+        isHbmAutoMode = prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false);
     }
 
     public void stopService() {
@@ -74,42 +78,19 @@ public class SensorService extends Service implements SensorEventListener {
         return START_STICKY;
     }
 
-    // Binder: Hierüber kann eine andere Komponente, die im selben Prozess läuft,
-    // auf den Service zugreifen
-    private final IBinder addBinder = new SensorServiceBinder();
-
-    public class SensorServiceBinder extends Binder {
-        // getService() liefert eine Referenz auf den Service,
-        // über die dann dessen Dienstmethode(n) aufgerufen werden kann/können.
-        SensorService getService() {
-            Log.v("DEMO","##### Service Binder - getService() #####");
-            return SensorService.this;
-        }
-    }
-
-    // onBind() liefert den Binder des Service zurück,
-    // wird als Reaktion auf den bindService()-Aufruf des Service-Nutzers ausgeführt
-    public IBinder onBind(Intent intent) {
-        Log.v("HBM-Service","##### Service - onBind() #####");
-        return addBinder;
-    }
-
     public int getLux() {
-        return lux;
-    }
-
-    public int getLuxBorder() {
-        return lux_border;
+        return (int)lux;
     }
 
     public void setLuxBorder(int lux_border) {
         Log.v("HBM SERVICE","setLuxBorder: "+lux_border);
-        prefs.edit().putInt(LUX_BORDER_STRING,lux_border).commit();
+        prefs.edit().putInt(SharedPrefStrings.LUX_BORDER_STRING,lux_border).commit();
         this.lux_border = lux_border;
     }
 
     public void setHbmAutoMode(boolean toSet) {
         Log.v("HBM SERVICE","setHbmAutoMode(): "+toSet);
+        prefs.edit().putBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,toSet).commit();
         isHbmAutoMode = toSet;
     }
 
@@ -141,14 +122,12 @@ public class SensorService extends Service implements SensorEventListener {
             while(!exit) {
                 try {
                     sleep(CHECK_LUX_RATE);
-                    Log.v("HBM SERVICE","HBM Luxthread automode : "+isHbmAutoMode);
 
                     if(isHbmAutoMode) {
                         int luxAdd = 0;
 
                         if(!isHbmEnabled) {
                             if(lux >= lux_border) {
-                                Log.v("HBM SERVICE","HBM enabled");
                                 isHbmEnabled = true;
                                 setHbm(true);
                             }
@@ -167,8 +146,11 @@ public class SensorService extends Service implements SensorEventListener {
                                 isHbmEnabled = false;
                             } else {
                                 Log.v("HBM SERVICE","Keeping HBM enabled! LuxAdd/NUMBER_OF_LUX_VALUES: "+temp+" disable border: "+multipliedBorder);
+                                setHbm(true);
                             }
                         }
+                    } else {
+                        sleep(NO_AUTO_HBM_SLEEP);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -188,7 +170,7 @@ public class SensorService extends Service implements SensorEventListener {
 
     @Override
     public final void onSensorChanged(SensorEvent event) {
-        lux = (int)event.values[0];
+        lux = event.values[0];
         // Do something with this sensor data.
     }
 
@@ -200,6 +182,26 @@ public class SensorService extends Service implements SensorEventListener {
                 Toast.makeText(getApplicationContext(),message,Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    // Binder: Hierüber kann eine andere Komponente, die im selben Prozess läuft,
+    // auf den Service zugreifen
+    private final IBinder addBinder = new SensorServiceBinder();
+
+    public class SensorServiceBinder extends Binder {
+        // getService() liefert eine Referenz auf den Service,
+        // über die dann dessen Dienstmethode(n) aufgerufen werden kann/können.
+        SensorService getService() {
+            Log.v("DEMO","##### Service Binder - getService() #####");
+            return SensorService.this;
+        }
+    }
+
+    // onBind() liefert den Binder des Service zurück,
+    // wird als Reaktion auf den bindService()-Aufruf des Service-Nutzers ausgeführt
+    public IBinder onBind(Intent intent) {
+        Log.v("HBM-Service","##### Service - onBind() #####");
+        return addBinder;
     }
 }
 
