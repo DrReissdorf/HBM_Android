@@ -1,5 +1,6 @@
 package home.sven.hbm_android;
 
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +25,8 @@ import android.widget.Toast;
 import eu.chainfire.libsuperuser.Shell;
 
 public class MainActivity extends AppCompatActivity {
+
+    private final Context context = this;
     private SensorService myService;  // Service, der aufgerufen werden soll
     private SensorService.SensorServiceBinder myBinder;  // Binder des Service
     private ConnectionToSensorService myConn;  // Überwacher der Verbindung zum Service
@@ -40,8 +43,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //Shell.SU.run("");
 
         textView = (TextView) findViewById(R.id.textView);
 
@@ -106,12 +107,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void connectService() {
         myConn = new ConnectionToSensorService();
-        Intent intent = new Intent(getApplicationContext(),SensorService.class);
+
+        Intent serviceIntent = new Intent(context, SensorService.class);
+        context.startService(serviceIntent);
         // Bindung zum Service herstellen (und dabei Service starten, falls nötig).
         // Der Parameter 'myConn' referenziert ein Objekt, das dann die hergestellte Verbindung überwacht
         // und Callback-Methoden bereitstellt, die bei Zustandsänderungen ausgeführt werden.
         // Als Folge des bindService()-Aufrufs wird die callback-Methode myConn.onServiceConnected() (siehe unten) ausgeführt.
-        bindService(intent, myConn, Context.BIND_AUTO_CREATE);
+        bindService(serviceIntent, myConn, Context.BIND_AUTO_CREATE);
     }
 
     public void onButtonOnClickListener(View v) {
@@ -171,8 +174,15 @@ public class MainActivity extends AppCompatActivity {
 
             myService.setHbm(false);
 
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    luxBorderEditText.setText(myService.getLuxBorder()+"");
+                }
+            });
+
             while(!exit) {
-                sleep(1000);
+                sleep(250);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
