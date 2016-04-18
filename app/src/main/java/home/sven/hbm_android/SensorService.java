@@ -19,7 +19,10 @@ public class SensorService extends Service implements SensorEventListener {
     private SensorManager mSensorManager;
     private android.hardware.Sensor mLight;
     private int lux;
+
+    private int CHECK_LUX_RATE = 1000;
     private final int CHANGE_HBM_LOCK_MILLIS = 5000;
+    private final float multiplier = 0.75f;
 
     private boolean hbm_lock = false;
     private boolean isHbmEnabled = false;
@@ -61,19 +64,24 @@ public class SensorService extends Service implements SensorEventListener {
     public IBinder onBind(Intent intent) {
         Log.v("DEMO","##### Service - onBind() #####");
 
+        if(!Shell.SU.available()) {
+            Shell.SU.run("");
+
+            while(!Shell.SU.available()) try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            postToastOnMainThread("HBM: No root access");
+        }
+
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
 
         lux = 0;
-
-        Handler h = new Handler(this.getMainLooper());
-        h.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(),"HBM-Service running",Toast.LENGTH_LONG).show();
-            }
-        });
+        postToastOnMainThread("HBM-Service running");
 
         new LuxThread().start();
 
@@ -104,7 +112,7 @@ public class SensorService extends Service implements SensorEventListener {
             changed = true;
             toSet = true;
         }
-        else if(lux < lux_border*0.5) {
+        else if(lux < lux_border*multiplier) {
             changed = true;
             toSet = false;
         }
@@ -123,7 +131,7 @@ public class SensorService extends Service implements SensorEventListener {
         public void run() {
             while(true) {
                 try {
-                    sleep(1000);
+                    sleep(CHECK_LUX_RATE);
                     Log.v("HBM SERVICE","HBM Luxthread automode : "+isHbmAutoMode);
                     currentTime = System.currentTimeMillis();
 
@@ -143,4 +151,15 @@ public class SensorService extends Service implements SensorEventListener {
             }
         }
     }
+
+    private void postToastOnMainThread(final String message) {
+        Handler h = new Handler(this.getMainLooper());
+        h.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(),message,Toast.LENGTH_LONG).show();
+            }
+        });
+    }
 }
+

@@ -163,18 +163,9 @@ public class MainActivity extends AppCompatActivity {
         private boolean exit = false;
 
         public void run() {
+            connectService();
+
             while(myService == null) {
-                Shell.SU.run("");
-                if(!Shell.SU.available()) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(),"HBM: No root access",Toast.LENGTH_LONG).show();
-                        }
-                    });
-                } else {
-                    connectService();
-                }
                 sleep(100);
             }
 
