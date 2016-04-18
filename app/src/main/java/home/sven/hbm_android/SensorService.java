@@ -34,10 +34,10 @@ public class SensorService extends Service implements SensorEventListener {
     private int lux_border;
     private final int NUMBER_OF_LUX_VALUES = 50;
     private final int SLEEP_BETWEEN_LUX_VALUES = 100;
+    private LuxThread luxThread;
 
+    @Override
     public void onCreate() {
-        super.onCreate();
-
         Log.v("DEMO","##### Service - onCreate() #####");
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -46,12 +46,30 @@ public class SensorService extends Service implements SensorEventListener {
 
         prefs = getSharedPreferences(SHARED_PREFS_KEY,MODE_PRIVATE);
         lux_border = prefs.getInt(LUX_BORDER_STRING,2000);
+
+        luxThread = new LuxThread();
+        luxThread.start();
+    }
+
+    public void onDestroy() {
+        Log.v("DEMO","##### Service - onDestroy() #####");
+        if(luxThread != null) luxThread.exit();
+    }
+
+    public void stopService() {
+        luxThread.exit();
+        stopSelf();
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.v("DEMO","##### Service - onUnbind() #####");
+        return true;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        new LuxThread().start();
-
+        Log.v("DEMO","##### Service - onStartCommand() #####");
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
         return START_STICKY;
@@ -103,11 +121,13 @@ public class SensorService extends Service implements SensorEventListener {
     }
 
     private class LuxThread extends Thread {
+        private boolean exit = false;
+
         public void run() {
             if(!Shell.SU.available()) {
                 Shell.SU.run("");
 
-                while(!Shell.SU.available()) try {
+                while(!Shell.SU.available() && !exit) try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -119,7 +139,7 @@ public class SensorService extends Service implements SensorEventListener {
             lux = 0;
             postToastOnMainThread("HBM-Service running");
 
-            while(true) {
+            while(!exit) {
                 try {
                     sleep(CHECK_LUX_RATE);
                     Log.v("HBM SERVICE","HBM Luxthread automode : "+isHbmAutoMode);
@@ -154,8 +174,11 @@ public class SensorService extends Service implements SensorEventListener {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
             }
+        }
+
+        private void exit() {
+            exit = true;
         }
     }
 

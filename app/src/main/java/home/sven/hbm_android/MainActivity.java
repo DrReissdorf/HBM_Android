@@ -54,9 +54,14 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (myService != null) myService.setHbmAutoMode(isChecked);
                 if(isChecked) {
+                    if(myService != null) {
+                        Intent serviceIntent = new Intent(context, SensorService.class);
+                        context.startService(serviceIntent);
+                    }
                     onButton.setEnabled(false);
                     offButton.setEnabled(false);
                 } else {
+                    if(myService != null) myService.stopService();
                     onButton.setEnabled(true);
                     offButton.setEnabled(true);
                 }
@@ -99,6 +104,12 @@ public class MainActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
         updateThread.stopThread();
+
+        try {
+            context.unbindService(myConn);
+        } catch (IllegalArgumentException e){
+            Log.v("HBM","onPause() couldnt unbind");
+        }
     }
 
     public void onDestroy() {
@@ -149,11 +160,10 @@ public class MainActivity extends AppCompatActivity {
             myBinder = (SensorService.SensorServiceBinder) binder;
             myService = myBinder.getService();
 
-            Log.v("HBM","##### Activity - onServiceConnected(): calling myService.add() #####");
         }
 
         public void onServiceDisconnected(ComponentName className) {
-
+            Log.v("HBM","##### Activity - onServiceDisconnected() #####");
         }
 
     } // Ende von 'ConnectionToAddService'
