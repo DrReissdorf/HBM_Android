@@ -24,13 +24,12 @@ public class SensorService extends Service implements SensorEventListener {
 
     /* HBM VARIABLES */
     private final int NO_AUTO_HBM_SLEEP = 2000;
-    private final int CHECK_LUX_RATE = 1000;
-    private final float REDUCE_LUX_MULTIPLIER = 0.75f;
-    private final int NUMBER_OF_LUX_VALUES = 25;
+    private final int NUMBER_OF_LUX_VALUES = 10;
     private final int SLEEP_BETWEEN_LUX_VALUES = 200;
     private boolean isHbmEnabled = false;
     private boolean isHbmAutoMode;
-    private int lux_border;
+    private int luxActivationLimit;
+    private int luxDeactivationLimit;
 
 
     @Override
@@ -52,7 +51,8 @@ public class SensorService extends Service implements SensorEventListener {
 
     private void loadPrefs() {
         prefs = getSharedPreferences(SharedPrefStrings.SHARED_PREFS_KEY,MODE_PRIVATE);
-        lux_border = prefs.getInt(SharedPrefStrings.LUX_BORDER_STRING,2000);
+        luxActivationLimit = prefs.getInt(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING,2000);
+        luxDeactivationLimit = prefs.getInt(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING,1500);
         isHbmAutoMode = prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false);
     }
 
@@ -74,10 +74,16 @@ public class SensorService extends Service implements SensorEventListener {
         return (int)lux;
     }
 
-    public void setLuxBorder(int lux_border) {
-        Log.v("HBM SERVICE","setLuxBorder: "+lux_border);
-        prefs.edit().putInt(SharedPrefStrings.LUX_BORDER_STRING,lux_border).commit();
-        this.lux_border = lux_border;
+    public void setLuxActivationLimit(int luxActivationLimit) {
+        Log.v("HBM SERVICE","setLuxActivationLimit: "+luxActivationLimit);
+        prefs.edit().putInt(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING,luxActivationLimit).commit();
+        this.luxActivationLimit = luxActivationLimit;
+    }
+
+    public void setLuxDeactivationLimit(int luxDeactivationLimit) {
+        Log.v("HBM SERVICE","setLuxDeactivationLimit: "+luxDeactivationLimit);
+        prefs.edit().putInt(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING,luxDeactivationLimit).commit();
+        this.luxDeactivationLimit = luxDeactivationLimit;
     }
 
     public void setHbmAutoMode(boolean toSet) {
@@ -111,31 +117,36 @@ public class SensorService extends Service implements SensorEventListener {
 
             while(true) {
                 try {
-                    sleep(CHECK_LUX_RATE);
-
                     if(isHbmAutoMode) {
                         int luxAdd = 0;
 
                         if(!isHbmEnabled) {
-                            if(lux >= lux_border) {
-                                isHbmEnabled = true;
-                                setHbm(true);
-                            }
-                        } else {
-                            Log.v("HBM SERVICE","Getting lux value every "+SLEEP_BETWEEN_LUX_VALUES+"ms for "+NUMBER_OF_LUX_VALUES+" times...");
+                            /****** AVERGE LUX OVER TIME CALCULATION ******/
                             for(int i=0 ; i<NUMBER_OF_LUX_VALUES ; i++) {
                                 sleep(SLEEP_BETWEEN_LUX_VALUES);
                                 luxAdd += lux;
                             }
-
                             int averageLux = luxAdd/NUMBER_OF_LUX_VALUES;
-                            float multipliedBorder = lux_border*REDUCE_LUX_MULTIPLIER;
-                            if(averageLux < multipliedBorder) {
-                                Log.v("HBM SERVICE","Diabling HBM! Average Lux-Value: "+averageLux+". Disable-border: "+multipliedBorder);
+                            /**********************************************/
+                            if(averageLux >= luxActivationLimit) {
+                                isHbmEnabled = true;
+                                setHbm(true);
+                            }
+                        } else {
+                            /****** AVERGE LUX OVER TIME CALCULATION ******/
+                            for(int i=0 ; i<NUMBER_OF_LUX_VALUES ; i++) {
+                                sleep(SLEEP_BETWEEN_LUX_VALUES);
+                                luxAdd += lux;
+                            }
+                            int averageLux = luxAdd/NUMBER_OF_LUX_VALUES;
+                            /**********************************************/
+
+                            if(averageLux < luxDeactivationLimit) {
+                                Log.v("HBM SERVICE","Diabling HBM! Average Lux-Value: "+averageLux+". Disable-border: "+luxDeactivationLimit);
                                 setHbm(false);
                                 isHbmEnabled = false;
                             } else {
-                                Log.v("HBM SERVICE","Keeping HBM enabled! Average Lux-Value: "+averageLux+". Disable-border: "+multipliedBorder);
+                                Log.v("HBM SERVICE","Keeping HBM enabled! Average Lux-Value: "+averageLux+". Disable-border: "+luxDeactivationLimit);
                                 setHbm(true);
                             }
                         }

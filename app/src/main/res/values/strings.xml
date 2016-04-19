@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">HBM_Android</string>
+
+    <!-- activity_main.xml strings -->
+    <string name="automatic_hbm_switch_text">Automatischer HBM-Modus</string>
+    <string name="activate_hbm_button_text">HBM aktivieren</string>
+    <string name="deactivate_hbm_button_text">HBM deaktivieren</string>
+    <string name="hbm_lux_settings">Einstellungen</string>
+    <string name="hbm_lux_activation_limit">HBM aktivierung</string>
+    <string name="hbm_lux_deactivation_limit">HBM deaktivierung</string>
 </resources>

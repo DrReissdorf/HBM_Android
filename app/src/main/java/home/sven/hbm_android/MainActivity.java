@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -24,11 +25,15 @@ public class MainActivity extends AppCompatActivity {
     private SensorService.SensorServiceBinder myBinder;  // Binder des Service
     private ConnectionToSensorService myConn;  // Überwacher der Verbindung zum Service
 
-    private TextView textView;
+    private TextView luxSettingsTextView;
+    private TextView luxTextView;
     private Switch automaticHbmSwitch;
-    private EditText luxBorderEditText;
+    private EditText luxActivationLimitEditText;
+    private EditText luxDeactivationLimitEditText;
+    private LinearLayout manualHbmButtonsLinearLayout;
     private Button onButton;
     private Button offButton;
+    private LinearLayout automaticHbmSettingsLinearLayout;
 
     private UpdateThread updateThread;
 
@@ -41,36 +46,64 @@ public class MainActivity extends AppCompatActivity {
 
         prefs = getSharedPreferences(SharedPrefStrings.SHARED_PREFS_KEY,MODE_PRIVATE);
 
-        textView = (TextView) findViewById(R.id.textView);
+        luxSettingsTextView = (TextView) findViewById(R.id.luxSettingsTextView);
+        luxTextView = (TextView) findViewById(R.id.luxTextView);
 
         onButton = (Button)findViewById(R.id.onButton);
         offButton = (Button)findViewById(R.id.offButton);
+
+        manualHbmButtonsLinearLayout = (LinearLayout) findViewById(R.id.manual_hbm_buttons_linearlayout);
+        if(prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false)) manualHbmButtonsLinearLayout.setVisibility(View.GONE);
+
+        automaticHbmSettingsLinearLayout = (LinearLayout) findViewById(R.id.automatic_hbm_settings_linearlayout);
+        if(!prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false)) automaticHbmSettingsLinearLayout.setVisibility(View.GONE);
 
         automaticHbmSwitch = (Switch) findViewById(R.id.automaticHbmSwitch);
         automaticHbmSwitch.setChecked(prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false));
         automaticHbmSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    manualHbmButtonsLinearLayout.setVisibility(View.GONE);
+                    automaticHbmSettingsLinearLayout.setVisibility(View.VISIBLE);
+                }
+                else {
+                    manualHbmButtonsLinearLayout.setVisibility(View.VISIBLE);
+                    automaticHbmSettingsLinearLayout.setVisibility(View.GONE);
+                }
                 setAutomaticHbm(isChecked);
             }
         });
 
-        luxBorderEditText = (EditText) findViewById(R.id.luxBorderEditText);
-        luxBorderEditText.setText(prefs.getInt(SharedPrefStrings.LUX_BORDER_STRING,2000)+"");
-        luxBorderEditText.addTextChangedListener(new TextWatcher() {
+        luxActivationLimitEditText = (EditText) findViewById(R.id.luxActivationLimitEditText);
+        luxActivationLimitEditText.setText(prefs.getInt(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING,2000)+"");
+        luxActivationLimitEditText.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
-                String temp = luxBorderEditText.getText().toString();
-                int toSet;
+                int actInt;
 
-                if(temp.equals("")) {
-                    toSet = 999999;
-                } else {
-                    toSet = Integer.valueOf(temp);
-                }
-                myService.setLuxBorder(toSet);
+                if(luxActivationLimitEditText.getText().toString().equals("")) actInt = 999999;
+                else  actInt = Integer.valueOf(luxActivationLimitEditText.getText().toString());
+
+                myService.setLuxActivationLimit(actInt);
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        });
+
+        luxDeactivationLimitEditText = (EditText) findViewById(R.id.luxDeactivationLimitEditText);
+        luxDeactivationLimitEditText.setText(prefs.getInt(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING,1500)+"");
+        luxDeactivationLimitEditText.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {
+                int deactInt;
+
+                if(luxDeactivationLimitEditText.getText().toString().equals("")) deactInt = 0;
+                else  deactInt = Integer.valueOf(luxDeactivationLimitEditText.getText().toString());
+
+                myService.setLuxDeactivationLimit(deactInt);
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
         });
     }
@@ -164,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setLuxText(String text) {
-        textView.setText(text);
+        luxTextView.setText(text);
     }
 
     private class UpdateThread extends Thread {
@@ -182,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        setLuxText("Current Lux: "+myService.getLux());
+                        setLuxText("Aktueller Licht-Sensor Wert: "+myService.getLux());
                     }
                 });
             }
