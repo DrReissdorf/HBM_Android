@@ -6,6 +6,8 @@
     <string name="activate_hbm_button_text">HBM aktivieren</string>
     <string name="deactivate_hbm_button_text">HBM deaktivieren</string>
     <string name="hbm_lux_settings">Einstellungen</string>
-    <string name="hbm_lux_activation_limit">HBM aktivierung</string>
-    <string name="hbm_lux_deactivation_limit">HBM deaktivierung</string>
+    <string name="hbm_lux_activation_limit">HBM-On Limit</string>
+    <string name="hbm_lux_deactivation_limit">HBM-Off Limit</string>
+    <string name="lux_values_average_loop">Anzahl Durchschnittswerte</string>
+    <string name="lux_full_sleep_average_loop">Average-Loop Dauer</string>
 </resources>

@@ -19,13 +19,16 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 public class MainActivity extends AppCompatActivity {
     private final Context context = this;
     private SensorService myService;  // Service, der aufgerufen werden soll
     private SensorService.SensorServiceBinder myBinder;  // Binder des Service
     private ConnectionToSensorService myConn;  // Überwacher der Verbindung zum Service
 
-    private TextView luxSettingsTextView;
+    private EditText averageValuesEditText;
+    private EditText averageLoopSleepEditText;
     private TextView luxTextView;
     private Switch automaticHbmSwitch;
     private EditText luxActivationLimitEditText;
@@ -46,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
 
         prefs = getSharedPreferences(SharedPrefStrings.SHARED_PREFS_KEY,MODE_PRIVATE);
 
-        luxSettingsTextView = (TextView) findViewById(R.id.luxSettingsTextView);
         luxTextView = (TextView) findViewById(R.id.luxTextView);
 
         onButton = (Button)findViewById(R.id.onButton);
@@ -101,6 +103,38 @@ public class MainActivity extends AppCompatActivity {
                 else  deactInt = Integer.valueOf(luxDeactivationLimitEditText.getText().toString());
 
                 myService.setLuxDeactivationLimit(deactInt);
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        });
+
+        averageValuesEditText = (EditText) findViewById(R.id.averageValuesEditText);
+        averageValuesEditText.setText(prefs.getInt(SharedPrefStrings.AVERAGE_LUX_VALUES_STRING,10)+"");
+        averageValuesEditText.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {
+                int values;
+
+                if(averageValuesEditText.getText().toString().equals("")) values = 10;
+                else values = Integer.valueOf(averageValuesEditText.getText().toString());
+
+                myService.setValuesAverageLuxLoopMs(values);
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        });
+
+        averageLoopSleepEditText = (EditText) findViewById(R.id.averageLoopSleepEditText);
+        averageLoopSleepEditText.setText(prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_STRING,2000)+"");
+        averageLoopSleepEditText.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {
+                int sleepTime;
+
+                if(averageLoopSleepEditText.getText().toString().equals("")) sleepTime = 2000;
+                else sleepTime = Integer.valueOf(averageLoopSleepEditText.getText().toString());
+
+                myService.setFullSleepAverageLuxLoopMs(sleepTime);
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
