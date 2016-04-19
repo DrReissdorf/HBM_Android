@@ -17,22 +17,21 @@ import eu.chainfire.libsuperuser.Shell;
 
 public class SensorService extends Service implements SensorEventListener {
     /* SENSOR VARIABLE */
-    private float lux;
+    private float lux; // light sensor will store its value in this variable
 
     /* SHARED PREFERENCES */
     private SharedPreferences prefs;
 
     /* HBM VARIABLES */
-    private final int NO_AUTO_HBM_SLEEP = 2000;
-    private final int NUMBER_OF_LUX_VALUES = 10;
-    private final int SLEEP_BETWEEN_LUX_VALUES = 200;
-    private boolean isHbmEnabled = false;
-    private boolean isHbmAutoMode;
-    private int luxActivationLimit;
-    private int luxDeactivationLimit;
-    private int luxAverageActivateCalculatedLimit;
-    private int luxAverageDeactivateCalculatedLimit;
-
+    private final int NO_AUTO_HBM_SLEEP = 2000; // when isHbmAutoMode is false, LuxThread will wait for this long before checking if isHbmAutoMode is true
+    private final int NUMBER_OF_LUX_VALUES = 10; // for-loop which calucaltes average lux will loop NUMBER_OF_LUX_VALUE times
+    private final int SLEEP_BETWEEN_LUX_VALUES = 200; // sleep time in for-loop which calculates average-lux value
+    private boolean isHbmEnabled = false; // when hbm mode is on, this is true
+    private boolean isHbmAutoMode; // user-definable variable. if this is true, service will be automatically enable/disable hbm-mode
+    private int luxActivationLimit; // user-definable variable. when lux reaches this value, hbm will be activated
+    private int luxDeactivationLimit; // user-definable variable. when lux drops under this value, hbm will be deactivated
+    private int luxAverageActivateCalculatedLimit; // needed for checking average lux-value against lux-limit
+    private int luxAverageDeactivateCalculatedLimit; // needed for checking average lux-value against lux-limit
 
     @Override
     public void onCreate() {
@@ -72,9 +71,7 @@ public class SensorService extends Service implements SensorEventListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.v("HBM","##### Service - onStartCommand() #####");
-        // We want this service to continue running until it is explicitly
-        // stopped, so return sticky.
-        return START_STICKY;
+        return START_STICKY; // We want this service to continue running until it is explicitly stopped, so return sticky.
     }
 
     public int getLux() {
@@ -112,12 +109,13 @@ public class SensorService extends Service implements SensorEventListener {
             if(!Shell.SU.available()) {
                 Shell.SU.run("");
 
+                /**** Try to aquire root access ****/
                 while(!Shell.SU.available()) try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
+                /**********************************/
                 postToastOnMainThread("HBM: No root access");
             }
 
