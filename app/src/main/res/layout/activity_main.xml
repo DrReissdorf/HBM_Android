@@ -10,6 +10,33 @@
     android:orientation="vertical"
     tools:context="home.sven.hbm_android.MainActivity">
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/manual_hbm_buttons_linearlayout"
+        android:layout_margin="20dp">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/activate_hbm_button_text"
+            android:id="@+id/button_hbm_on"
+            android:onClick="buttonClickListener"
+            android:enabled="true"
+            android:layout_weight="1" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/deactivate_hbm_button_text"
+            android:id="@+id/button_hbm_off"
+            android:layout_gravity="center_horizontal"
+            android:onClick="buttonClickListener"
+            android:enabled="true"
+            android:layout_weight="1" />
+    </LinearLayout>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,7 +44,7 @@
         android:text="LUX"
         android:id="@+id/luxTextView"
         android:textAlignment="center"
-        android:textColor="@color/colorAccent"
+        android:textColor="#dd2c00"
         android:layout_margin="20dp" />
 
     <Switch
@@ -38,33 +65,5 @@
         android:layout_marginRight="20dp"
         android:layout_marginBottom="20dp"
         android:onClick="buttonClickListener" />
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/manual_hbm_buttons_linearlayout"
-        android:layout_margin="20dp">
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/activate_hbm_button_text"
-            android:id="@+id/button_hbm_on"
-            android:layout_gravity="center_horizontal"
-            android:onClick="buttonClickListener"
-            android:enabled="true"
-            android:layout_weight="1" />
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/deactivate_hbm_button_text"
-            android:id="@+id/button_hbm_off"
-            android:layout_gravity="center_horizontal"
-            android:onClick="buttonClickListener"
-            android:enabled="true"
-            android:layout_weight="1" />
-    </LinearLayout>
 
 </LinearLayout>

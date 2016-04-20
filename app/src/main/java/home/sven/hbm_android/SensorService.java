@@ -21,6 +21,11 @@ public class SensorService extends Service implements SensorEventListener {
 
     /* SHARED PREFERENCES */
     private SharedPreferences prefs;
+    private final int DEFAULT_ACTIVATION_LIMIT = 1500;
+    private final int DEFAULT_DEACTIVATION_LIMIT = 750;
+    private final int DEFAULT_ACTIVATION_FULLSLEEP = 1000;
+    private final int DEFAULT_DEACTIVATION_FULLSLEEP = 3000;
+    private final int DEFAULT_AVERAGE_VALUES = 5;
 
     /* HBM VARIABLES */
     private final int NO_AUTO_HBM_SLEEP = 2000; // when isHbmAutoMode is false, LuxThread will wait for this long before checking if isHbmAutoMode is true
@@ -88,18 +93,18 @@ public class SensorService extends Service implements SensorEventListener {
             }
 
             lux = 0;
-            postToastOnMainThread("HBM-Service running");
+            postToastOnMainThread(getString(R.string.service_running_toast_text));
 
             while(true) {
                 try {
                     if(prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false)) { //is automode enabled?
                         int luxAdd = 0;
-                        int numberOfLuxValues = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_VALUES_STRING,5); // for-loop which calucaltes average lux will loop NUMBER_OF_LUX_VALUE times
+                        int numberOfLuxValues = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_VALUES_STRING,DEFAULT_AVERAGE_VALUES); // for-loop which calucaltes average lux will loop NUMBER_OF_LUX_VALUE times
 
                         if(!isHbmEnabled) {
-                            int luxActivationLimit = prefs.getInt(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING,2000); //when lux reaches this value, hbm will be activated
+                            int luxActivationLimit = prefs.getInt(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING, DEFAULT_ACTIVATION_LIMIT); //when lux reaches this value, hbm will be activated
                             int luxAverageActivateLimit = luxActivationLimit*numberOfLuxValues;
-                            int fullSleepAverageActivateLuxLoop_ms = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_ACTIVATION_STRING,1000);
+                            int fullSleepAverageActivateLuxLoop_ms = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_ACTIVATION_STRING,DEFAULT_ACTIVATION_FULLSLEEP);
                             int sleepBetweenLuxValuesActivation = fullSleepAverageActivateLuxLoop_ms/numberOfLuxValues; // sleep time after one cycle in for-loop which calculates average-lux value for activation
 
                             /* AVERGE LUX OVER TIME CALCULATION ACTIVATION */
@@ -113,9 +118,9 @@ public class SensorService extends Service implements SensorEventListener {
                                 setHbm(true);
                             }
                         } else {
-                            int luxDeactivationLimit = prefs.getInt(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING,1400); // user-definable variable. when lux drops under this value, hbm will be deactivated
+                            int luxDeactivationLimit = prefs.getInt(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING, DEFAULT_DEACTIVATION_LIMIT); // user-definable variable. when lux drops under this value, hbm will be deactivated
                             int luxAverageDeactivateLimit = luxDeactivationLimit*numberOfLuxValues;
-                            int fullSleepAverageDeactivateLuxLoop_ms = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_DEACTIVATION_STRING,3000);
+                            int fullSleepAverageDeactivateLuxLoop_ms = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_DEACTIVATION_STRING,DEFAULT_DEACTIVATION_FULLSLEEP);
                             int sleepBetweenLuxValuesDeactivation = fullSleepAverageDeactivateLuxLoop_ms/numberOfLuxValues; // sleep time after one cycle in for-loop which calculates average-lux value for deactivation
 
                             /* AVERGE LUX OVER TIME CALCULATION DEACTIVATION */

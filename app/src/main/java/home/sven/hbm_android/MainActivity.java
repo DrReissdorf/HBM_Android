@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         automaticHbmSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
-                    manualHbmButtonsLinearLayout.setVisibility(View.GONE);
+                    manualHbmButtonsLinearLayout.setVisibility(View.INVISIBLE);
                 }
                 else {
                     manualHbmButtonsLinearLayout.setVisibility(View.VISIBLE);

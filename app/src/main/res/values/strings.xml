@@ -14,4 +14,7 @@
     <string name="lux_values_average_loop">#Durchschnittswerte</string>
     <string name="lux_full_sleep_average_loop_activation">Aktivierungs-Dauer</string>
     <string name="lux_full_sleep_average_loop_deactivation">Deaktivierungs-Dauer</string>
+
+    <!-- sensorActivity strings -->
+    <string name="service_running_toast_text">HBM-Service gestartet</string>
 </resources>
