@@ -8,18 +8,12 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 public class MainActivity extends AppCompatActivity {
     private final Context context = this;
@@ -27,20 +21,12 @@ public class MainActivity extends AppCompatActivity {
     private SensorService.SensorServiceBinder myBinder;  // Binder des Service
     private ConnectionToSensorService myConn;  // Überwacher der Verbindung zum Service
 
-    private EditText averageValuesEditText;
-    private EditText averageLoopSleepEditText;
     private TextView luxTextView;
     private Switch automaticHbmSwitch;
-    private EditText luxActivationLimitEditText;
-    private EditText luxDeactivationLimitEditText;
     private LinearLayout manualHbmButtonsLinearLayout;
-    private Button onButton;
-    private Button offButton;
-    private LinearLayout automaticHbmSettingsLinearLayout;
+    private SharedPreferences prefs;
 
     private UpdateThread updateThread;
-
-    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,14 +37,8 @@ public class MainActivity extends AppCompatActivity {
 
         luxTextView = (TextView) findViewById(R.id.luxTextView);
 
-        onButton = (Button)findViewById(R.id.onButton);
-        offButton = (Button)findViewById(R.id.offButton);
-
         manualHbmButtonsLinearLayout = (LinearLayout) findViewById(R.id.manual_hbm_buttons_linearlayout);
         if(prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false)) manualHbmButtonsLinearLayout.setVisibility(View.GONE);
-
-        automaticHbmSettingsLinearLayout = (LinearLayout) findViewById(R.id.automatic_hbm_settings_linearlayout);
-        if(!prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false)) automaticHbmSettingsLinearLayout.setVisibility(View.GONE);
 
         automaticHbmSwitch = (Switch) findViewById(R.id.automaticHbmSwitch);
         automaticHbmSwitch.setChecked(prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false));
@@ -66,80 +46,16 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
                     manualHbmButtonsLinearLayout.setVisibility(View.GONE);
-                    automaticHbmSettingsLinearLayout.setVisibility(View.VISIBLE);
                 }
                 else {
                     manualHbmButtonsLinearLayout.setVisibility(View.VISIBLE);
-                    automaticHbmSettingsLinearLayout.setVisibility(View.GONE);
                 }
-                setAutomaticHbm(isChecked);
+                Log.v("HBM SERVICE","HBM-Auto-Mode: "+isChecked);
+                prefs.edit().putBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,isChecked).commit();
             }
         });
 
-        luxActivationLimitEditText = (EditText) findViewById(R.id.luxActivationLimitEditText);
-        luxActivationLimitEditText.setText(prefs.getInt(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING,2000)+"");
-        luxActivationLimitEditText.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-                int actInt;
 
-                if(luxActivationLimitEditText.getText().toString().equals("")) actInt = 999999;
-                else  actInt = Integer.valueOf(luxActivationLimitEditText.getText().toString());
-
-                myService.setLuxActivationLimit(actInt);
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-        });
-
-        luxDeactivationLimitEditText = (EditText) findViewById(R.id.luxDeactivationLimitEditText);
-        luxDeactivationLimitEditText.setText(prefs.getInt(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING,1500)+"");
-        luxDeactivationLimitEditText.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-                int deactInt;
-
-                if(luxDeactivationLimitEditText.getText().toString().equals("")) deactInt = 0;
-                else  deactInt = Integer.valueOf(luxDeactivationLimitEditText.getText().toString());
-
-                myService.setLuxDeactivationLimit(deactInt);
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-        });
-
-        averageValuesEditText = (EditText) findViewById(R.id.averageValuesEditText);
-        averageValuesEditText.setText(prefs.getInt(SharedPrefStrings.AVERAGE_LUX_VALUES_STRING,10)+"");
-        averageValuesEditText.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-                int values;
-
-                if(averageValuesEditText.getText().toString().equals("")) values = 10;
-                else values = Integer.valueOf(averageValuesEditText.getText().toString());
-
-                myService.setValuesAverageLuxLoopMs(values);
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-        });
-
-        averageLoopSleepEditText = (EditText) findViewById(R.id.averageLoopSleepEditText);
-        averageLoopSleepEditText.setText(prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_STRING,2000)+"");
-        averageLoopSleepEditText.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-                int sleepTime;
-
-                if(averageLoopSleepEditText.getText().toString().equals("")) sleepTime = 2000;
-                else sleepTime = Integer.valueOf(averageLoopSleepEditText.getText().toString());
-
-                myService.setFullSleepAverageLuxLoopMs(sleepTime);
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-        });
     }
 
     public void onResume() {
@@ -167,27 +83,6 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private void setAutomaticHbm(boolean value) {
-        onButton.setEnabled(!value);
-        offButton.setEnabled(!value);
-
-        if(value) {
-            connectService();
-            myService.setHbm(false);
-            onButton.setEnabled(false);
-            offButton.setEnabled(false);
-        } else {
-            myService.setHbm(false);
-            try {
-                context.unbindService(myConn);
-            } catch (IllegalArgumentException e){
-                Log.v("HBM","SwitchListener() couldnt unbind");
-            }
-        }
-
-        myService.setHbmAutoMode(value);
-    }
-
     private void connectService() {
         myConn = new ConnectionToSensorService();
         Intent serviceIntent = new Intent(context, SensorService.class);
@@ -195,21 +90,31 @@ public class MainActivity extends AppCompatActivity {
         bindService(serviceIntent, myConn, Context.BIND_AUTO_CREATE); //calls onServiceConnected in ConnectionToSensorService-Class
     }
 
-    public void onButtonOnClickListener(View v) {
-        Log.v("HBM","onButtonOnClickListener()");
-        try {
-            myService.setHbm(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    public void buttonClickListener(View v) {
+        switch(v.getId()) {
+            case R.id.button_hbm_on:
+                Log.v("HBM","onButtonOnClickListener()");
+                try {
+                    myService.setHbm(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
 
-    public void offButtonOnClickListener(View v) {
-        Log.v("HBM","offButtonOnClickListener()");
-        try {
-            myService.setHbm(false);
-        } catch (Exception e) {
-            e.printStackTrace();
+            case R.id.button_hbm_off:
+                Log.v("HBM","offButtonOnClickListener()");
+                try {
+                    myService.setHbm(false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+
+            case R.id.button_settings:
+                Intent myIntent = new Intent(this,AutomaticSettingsActivity.class);
+                myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(myIntent);
+                break;
         }
     }
 
@@ -241,8 +146,6 @@ public class MainActivity extends AppCompatActivity {
             while(myService == null) {
                 sleep(250);
             }
-
-            myService.setHbm(false);
 
             while(!exit) {
                 sleep(250);

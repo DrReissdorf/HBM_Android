@@ -5,9 +5,13 @@
     <string name="automatic_hbm_switch_text">Automatischer HBM-Modus</string>
     <string name="activate_hbm_button_text">HBM aktivieren</string>
     <string name="deactivate_hbm_button_text">HBM deaktivieren</string>
+    <string name="button_goto_settings">Einstellungen Auto-Modus</string>
+
+    <!-- activity_automatic_settings.xml strings -->
     <string name="hbm_lux_settings">Einstellungen</string>
     <string name="hbm_lux_activation_limit">HBM-On Limit</string>
     <string name="hbm_lux_deactivation_limit">HBM-Off Limit</string>
-    <string name="lux_values_average_loop">Anzahl Durchschnittswerte</string>
-    <string name="lux_full_sleep_average_loop">Average-Loop Dauer</string>
+    <string name="lux_values_average_loop">#Durchschnittswerte</string>
+    <string name="lux_full_sleep_average_loop_activation">Aktivierungs-Dauer</string>
+    <string name="lux_full_sleep_average_loop_deactivation">Deaktivierungs-Dauer</string>
 </resources>

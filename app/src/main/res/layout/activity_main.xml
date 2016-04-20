@@ -10,6 +10,16 @@
     android:orientation="vertical"
     tools:context="home.sven.hbm_android.MainActivity">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="LUX"
+        android:id="@+id/luxTextView"
+        android:textAlignment="center"
+        android:textColor="@color/colorAccent"
+        android:layout_margin="20dp" />
+
     <Switch
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,150 +27,44 @@
         android:id="@+id/automaticHbmSwitch"
         android:checked="true"
         android:textSize="18dp"
-        android:layout_marginBottom="20dp" />
+        android:layout_margin="20dp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/button_goto_settings"
+        android:id="@+id/button_settings"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
+        android:onClick="buttonClickListener" />
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/manual_hbm_buttons_linearlayout">
+        android:id="@+id/manual_hbm_buttons_linearlayout"
+        android:layout_margin="20dp">
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/activate_hbm_button_text"
-            android:id="@+id/onButton"
+            android:id="@+id/button_hbm_on"
             android:layout_gravity="center_horizontal"
-            android:onClick="onButtonOnClickListener"
-            android:enabled="false"
+            android:onClick="buttonClickListener"
+            android:enabled="true"
             android:layout_weight="1" />
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/deactivate_hbm_button_text"
-            android:id="@+id/offButton"
+            android:id="@+id/button_hbm_off"
             android:layout_gravity="center_horizontal"
-            android:onClick="offButtonOnClickListener"
-            android:enabled="false"
+            android:onClick="buttonClickListener"
+            android:enabled="true"
             android:layout_weight="1" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:id="@+id/automatic_hbm_settings_linearlayout">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/hbm_lux_settings"
-            android:id="@+id/luxSettingsTextView"
-            android:layout_gravity="center_horizontal"
-            android:textAlignment="center" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="LUX"
-            android:id="@+id/luxTextView"
-            android:textAlignment="center"
-            android:textColor="@color/colorAccent" />
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="@string/hbm_lux_activation_limit"
-                android:id="@+id/textView2"
-                android:layout_weight="1" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:ems="10"
-                android:id="@+id/luxActivationLimitEditText"
-                android:layout_weight="1" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="@string/hbm_lux_deactivation_limit"
-                android:id="@+id/textView3"
-                android:layout_weight="1" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:ems="10"
-                android:id="@+id/luxDeactivationLimitEditText"
-                android:layout_weight="1" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="@string/lux_values_average_loop"
-                android:id="@+id/textView"
-                android:layout_weight="1" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:ems="10"
-                android:id="@+id/averageValuesEditText"
-                android:layout_weight="1" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="@string/lux_full_sleep_average_loop"
-                android:id="@+id/textView4"
-                android:layout_weight="1" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:ems="10"
-                android:id="@+id/averageLoopSleepEditText"
-                android:layout_weight="1" />
-        </LinearLayout>
-
     </LinearLayout>
 
 </LinearLayout>
