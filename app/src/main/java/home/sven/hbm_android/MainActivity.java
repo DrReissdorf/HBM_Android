@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -23,7 +24,9 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView luxTextView;
     private Switch automaticHbmSwitch;
-    private LinearLayout manualHbmButtonsLinearLayout;
+    private Button button_hbm_on;
+    private Button button_hbm_off;
+
     private SharedPreferences prefs;
 
     private UpdateThread updateThread;
@@ -36,19 +39,31 @@ public class MainActivity extends AppCompatActivity {
         prefs = getSharedPreferences(SharedPrefStrings.SHARED_PREFS_KEY,MODE_PRIVATE);
 
         luxTextView = (TextView) findViewById(R.id.luxTextView);
+        button_hbm_on = (Button)findViewById(R.id.button_hbm_on);
+        button_hbm_off = (Button)findViewById(R.id.button_hbm_off);
 
-        manualHbmButtonsLinearLayout = (LinearLayout) findViewById(R.id.manual_hbm_buttons_linearlayout);
-        if(prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false)) manualHbmButtonsLinearLayout.setVisibility(View.GONE);
+        if(prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false)) {
+            button_hbm_on.setEnabled(false);
+            button_hbm_off.setEnabled(false);
+            button_hbm_on.setVisibility(View.INVISIBLE);
+            button_hbm_off.setVisibility(View.INVISIBLE);
+        }
 
         automaticHbmSwitch = (Switch) findViewById(R.id.automaticHbmSwitch);
         automaticHbmSwitch.setChecked(prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false));
         automaticHbmSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
-                    manualHbmButtonsLinearLayout.setVisibility(View.INVISIBLE);
+                    button_hbm_on.setEnabled(false);
+                    button_hbm_off.setEnabled(false);
+                    button_hbm_on.setVisibility(View.INVISIBLE);
+                    button_hbm_off.setVisibility(View.INVISIBLE);
                 }
                 else {
-                    manualHbmButtonsLinearLayout.setVisibility(View.VISIBLE);
+                    button_hbm_on.setEnabled(true);
+                    button_hbm_off.setEnabled(true);
+                    button_hbm_on.setVisibility(View.VISIBLE);
+                    button_hbm_off.setVisibility(View.VISIBLE);
                 }
                 Log.v("HBM SERVICE","HBM-Auto-Mode: "+isChecked);
                 prefs.edit().putBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,isChecked).commit();
@@ -152,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        setLuxText("Aktueller Licht-Sensor Wert: "+myService.getLux());
+                        setLuxText(getString(R.string.lux_sensor_string)+" "+myService.getLux());
                     }
                 });
             }

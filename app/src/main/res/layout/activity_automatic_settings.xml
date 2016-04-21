@@ -17,12 +17,21 @@
         android:text="@string/hbm_lux_settings"
         android:id="@+id/luxSettingsTextView"
         android:layout_gravity="center_horizontal"
-        android:textAlignment="center" />
+        android:textAlignment="center"
+        android:layout_marginBottom="10dp" />
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/imageButton"
+            android:src="@drawable/ic_info_black_24dp"
+            android:background="#00ffffff"
+            android:layout_marginLeft="10dp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -30,8 +39,10 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/hbm_lux_activation_limit"
             android:id="@+id/textView2"
+            android:gravity="center"
             android:layout_weight="1"
-            android:textSize="18dp" />
+            android:textSize="18dp"
+            android:textAlignment="center" />
 
         <EditText
             android:layout_width="match_parent"
@@ -39,7 +50,7 @@
             android:inputType="number"
             android:ems="10"
             android:id="@+id/luxActivationLimitEditText"
-            android:layout_weight="1" />
+            android:layout_weight="2" />
 
     </LinearLayout>
 
@@ -48,12 +59,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/imageButton2"
+            android:src="@drawable/ic_info_black_24dp"
+            android:background="#00ffffff"
+            android:layout_marginLeft="10dp" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/hbm_lux_deactivation_limit"
             android:id="@+id/textView3"
+            android:gravity="center"
             android:layout_weight="1"
             android:textSize="18dp" />
 
@@ -63,7 +83,7 @@
             android:inputType="number"
             android:ems="10"
             android:id="@+id/luxDeactivationLimitEditText"
-            android:layout_weight="1" />
+            android:layout_weight="2" />
 
     </LinearLayout>
 
@@ -72,11 +92,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/imageButton3"
+            android:src="@drawable/ic_info_black_24dp"
+            android:background="#00ffffff"
+            android:layout_marginLeft="10dp" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/lux_values_average_loop"
+            android:gravity="center"
             android:id="@+id/textView"
             android:layout_weight="1"
             android:textSize="18dp" />
@@ -87,7 +116,7 @@
             android:inputType="number"
             android:ems="10"
             android:id="@+id/averageValuesEditText"
-            android:layout_weight="1" />
+            android:layout_weight="2" />
     </LinearLayout>
 
     <LinearLayout
@@ -95,12 +124,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/imageButton5"
+            android:src="@drawable/ic_info_black_24dp"
+            android:background="#00ffffff"
+            android:layout_marginLeft="10dp" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/lux_full_sleep_average_loop_activation"
             android:id="@+id/textView4"
+            android:gravity="center"
             android:layout_weight="1"
             android:textSize="18dp" />
 
@@ -110,7 +148,7 @@
             android:inputType="number"
             android:ems="10"
             android:id="@+id/averageLoopSleepActivationEditText"
-            android:layout_weight="1" />
+            android:layout_weight="2" />
     </LinearLayout>
 
     <LinearLayout
@@ -118,12 +156,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/imageButton4"
+            android:src="@drawable/ic_info_black_24dp"
+            android:background="#00ffffff"
+            android:layout_marginLeft="10dp" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/lux_full_sleep_average_loop_deactivation"
             android:id="@+id/textView5"
+            android:gravity="center"
             android:layout_weight="1"
             android:textSize="18dp" />
 
@@ -133,7 +180,7 @@
             android:inputType="number"
             android:ems="10"
             android:id="@+id/averageLoopSleepDeactivationEditText"
-            android:layout_weight="1" />
+            android:layout_weight="2" />
     </LinearLayout>
 
 </LinearLayout>

@@ -78,24 +78,18 @@ public class SensorService extends Service implements SensorEventListener {
     }
 
     private class LuxThread extends Thread {
+        private boolean rootAccess = false;
         public void run() {
             if(!Shell.SU.available()) {
-                Shell.SU.run("");
-
-                /**** Try to aquire root access ****/
-                while(!Shell.SU.available()) try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                /**********************************/
-                postToastOnMainThread("HBM: No root access");
-            }
+                rootAccess = false;
+                postToastOnMainThread(getString(R.string.toast_not_root_access));
+            } else rootAccess = true;
 
             lux = 0;
-            postToastOnMainThread(getString(R.string.service_running_toast_text));
 
-            while(true) {
+            if(rootAccess) postToastOnMainThread(getString(R.string.service_running_toast_text));
+
+            while(rootAccess) {
                 try {
                     if(prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false)) { //is automode enabled?
                         int luxAdd = 0;
@@ -143,6 +137,11 @@ public class SensorService extends Service implements SensorEventListener {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                }
+
+                if(!Shell.SU.available()) {
+                    rootAccess = false;
+                    postToastOnMainThread(getString(R.string.toast_not_root_access));
                 }
             }
         }

@@ -1,20 +1,22 @@
 <resources>
-    <string name="app_name">HBM_Android</string>
+    <string name="app_name">High Brightness Mode</string>
 
     <!-- activity_main.xml strings -->
-    <string name="automatic_hbm_switch_text">Automatischer HBM-Modus</string>
-    <string name="activate_hbm_button_text">HBM aktivieren</string>
-    <string name="deactivate_hbm_button_text">HBM deaktivieren</string>
-    <string name="button_goto_settings">Einstellungen Auto-Modus</string>
+    <string name="automatic_hbm_switch_text">Automatic HBM</string>
+    <string name="activate_hbm_button_text">HBM on</string>
+    <string name="deactivate_hbm_button_text">HBM off</string>
+    <string name="button_goto_settings">Settings</string>
+    <string name="lux_sensor_string">Sensor</string>
 
     <!-- activity_automatic_settings.xml strings -->
-    <string name="hbm_lux_settings">Einstellungen</string>
+    <string name="hbm_lux_settings">Settings</string>
     <string name="hbm_lux_activation_limit">HBM-On Limit</string>
     <string name="hbm_lux_deactivation_limit">HBM-Off Limit</string>
-    <string name="lux_values_average_loop">#Durchschnittswerte</string>
-    <string name="lux_full_sleep_average_loop_activation">Aktivierungs-Dauer</string>
-    <string name="lux_full_sleep_average_loop_deactivation">Deaktivierungs-Dauer</string>
+    <string name="lux_values_average_loop">#values</string>
+    <string name="lux_full_sleep_average_loop_activation">Activation-Time</string>
+    <string name="lux_full_sleep_average_loop_deactivation">Deactivation-Time</string>
 
     <!-- sensorActivity strings -->
-    <string name="service_running_toast_text">HBM-Service gestartet</string>
+    <string name="service_running_toast_text">HBM-Service started</string>
+    <string name="toast_not_root_access">HBM: No root access. Restart app</string>
 </resources>

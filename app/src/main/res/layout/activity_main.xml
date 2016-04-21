@@ -11,30 +11,48 @@
     tools:context="home.sven.hbm_android.MainActivity">
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/manual_hbm_buttons_linearlayout"
         android:layout_margin="20dp">
 
-        <Button
+        <Switch
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/activate_hbm_button_text"
-            android:id="@+id/button_hbm_on"
-            android:onClick="buttonClickListener"
-            android:enabled="true"
-            android:layout_weight="1" />
+            android:text="@string/automatic_hbm_switch_text"
+            android:id="@+id/automaticHbmSwitch"
+            android:checked="true"
+            android:textSize="18dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="10dp" />
 
-        <Button
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/deactivate_hbm_button_text"
-            android:id="@+id/button_hbm_off"
-            android:layout_gravity="center_horizontal"
-            android:onClick="buttonClickListener"
-            android:enabled="true"
-            android:layout_weight="1" />
+            android:id="@+id/manual_hbm_buttons_linearlayout">
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/activate_hbm_button_text"
+                android:id="@+id/button_hbm_on"
+                android:drawableStart="@drawable/ic_brightness_7_black_24dp"
+                android:onClick="buttonClickListener"
+                android:enabled="true"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/deactivate_hbm_button_text"
+                android:id="@+id/button_hbm_off"
+                android:drawableStart="@drawable/ic_brightness_5_black_24dp"
+                android:onClick="buttonClickListener"
+                android:enabled="true"
+                android:layout_weight="1" />
+        </LinearLayout>
     </LinearLayout>
 
     <TextView
@@ -42,28 +60,21 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="LUX"
+        android:drawableTop="@drawable/ic_wb_sunny_black_24dp"
         android:id="@+id/luxTextView"
-        android:textAlignment="center"
+        android:textAlignment="inherit"
+        android:gravity="center"
         android:textColor="#dd2c00"
-        android:layout_margin="20dp" />
-
-    <Switch
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/automatic_hbm_switch_text"
-        android:id="@+id/automaticHbmSwitch"
-        android:checked="true"
-        android:textSize="18dp"
-        android:layout_margin="20dp" />
+        android:layout_margin="20dp"
+        android:layout_gravity="center_horizontal" />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/button_goto_settings"
         android:id="@+id/button_settings"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="20dp"
-        android:onClick="buttonClickListener" />
+        android:drawableStart="@drawable/ic_build_black_24dp"
+        android:onClick="buttonClickListener"
+        android:layout_margin="20dp" />
 
 </LinearLayout>

@@ -2,12 +2,13 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light">
+
         <!-- Customize your theme here. -->
         <item name="colorPrimary">#ff9800</item>
         <item name="colorPrimaryDark">#f57c00</item>
         <item name="colorAccent">#dd2c00</item>
-        <item name="android:colorForeground">#bdbdbd</item>
-        <item name="android:navigationBarColor">#47000000</item>
+        <item name="android:colorForeground">#bababa</item>
+        <item name="android:navigationBarColor">#48000000</item>
         <item name="android:statusBarColor">#f57c00</item>
         <item name="android:textColorPrimary">#000000</item>
         <item name="android:textColorPrimaryInverse">#ffffff</item>
