@@ -21,11 +21,11 @@ public class SensorService extends Service implements SensorEventListener {
 
     /* SHARED PREFERENCES */
     private SharedPreferences prefs;
-    private final int DEFAULT_ACTIVATION_LIMIT = 1500;
-    private final int DEFAULT_DEACTIVATION_LIMIT = 750;
-    private final int DEFAULT_ACTIVATION_FULLSLEEP = 1000;
-    private final int DEFAULT_DEACTIVATION_FULLSLEEP = 3000;
-    private final int DEFAULT_AVERAGE_VALUES = 5;
+    private final int DEFAULT_ACTIVATION_LIMIT = 1500; //standard value if no sharedpref is found
+    private final int DEFAULT_DEACTIVATION_LIMIT = 750; //standard value if no sharedpref is found
+    private final int DEFAULT_ACTIVATION_FULLSLEEP = 1000; //standard value if no sharedpref is found
+    private final int DEFAULT_DEACTIVATION_FULLSLEEP = 3000; //standard value if no sharedpref is found
+    private final int DEFAULT_AVERAGE_VALUES = 5; //standard value if no sharedpref is found
 
     /* HBM VARIABLES */
     private final int NO_AUTO_HBM_SLEEP = 2000; // when isHbmAutoMode is false, LuxThread will wait for this long before checking if isHbmAutoMode is true
@@ -57,11 +57,6 @@ public class SensorService extends Service implements SensorEventListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.v("HBM","##### Service - onStartCommand() #####");
-
-     /*   if(!Shell.SU.available()) {
-            rootAccess = false;
-            postToastOnMainThread(getString(R.string.toast_not_root_access));
-        } else rootAccess = true; */
 
         return START_STICKY; // We want this service to continue running until it is explicitly stopped, so return sticky.
     }
@@ -133,19 +128,11 @@ public class SensorService extends Service implements SensorEventListener {
                             }
                         }
                     } else {
-                        Sleep(NO_AUTO_HBM_SLEEP);
+                        sleep(NO_AUTO_HBM_SLEEP);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-        }
-
-        private void Sleep(int timeInMs) {
-            try {
-                sleep(timeInMs);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
     }
