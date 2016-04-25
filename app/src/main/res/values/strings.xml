@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">High Brightness Mode</string>
+    <string name="app_name">HBM</string>
 
     <!-- activity_main.xml strings -->
     <string name="automatic_hbm_switch_text">Automatic HBM</string>

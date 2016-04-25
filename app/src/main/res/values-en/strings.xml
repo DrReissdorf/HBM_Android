@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">High Brightness Mode</string>
+    <string name="app_name">HBM</string>
     <string name="activate_hbm_button_text">HBM on</string>
     <string name="activation_time_setting_infotext">The program will calculate the average light sensor value to activate HBM within this time</string>
     <string name="auto_boot_settings">Start service on reboot</string>
