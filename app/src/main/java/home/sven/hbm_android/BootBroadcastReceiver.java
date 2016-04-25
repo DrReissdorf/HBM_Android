@@ -1,24 +1,25 @@
 package home.sven.hbm_android;
 
-import android.app.Service;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-import android.util.Log;
+import android.content.SharedPreferences;
 
 public class BootBroadcastReceiver extends BroadcastReceiver {
     final String ACTION = "android.intent.action.BOOT_COMPLETED";
+    SharedPreferences prefs;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         // BOOT_COMPLETED” start Service
         if (intent.getAction().equals(ACTION)) {
-            //Service
-            Intent serviceIntent = new Intent(context, SensorService.class);
-            context.startService(serviceIntent);
+            prefs = context.getSharedPreferences(SharedPrefStrings.SHARED_PREFS_KEY, Context.MODE_PRIVATE);
+
+            if(prefs.getBoolean(SharedPrefStrings.SERVICE_AUTO_BOOT,false)) {
+                //Service
+                Intent serviceIntent = new Intent(context, SensorService.class);
+                context.startService(serviceIntent);
+            }
         }
     }
 }

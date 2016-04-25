@@ -31,5 +31,4 @@
 
         <activity android:name=".AutomaticSettingsActivity"></activity>
     </application>
-
 </manifest>
