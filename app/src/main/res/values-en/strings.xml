@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">High Brightness Mode</string>
+    <string name="activate_hbm_button_text">HBM on</string>
+    <string name="activation_time_setting_infotext">The program will calculate the average light sensor value to activate HBM within this time</string>
+    <string name="auto_boot_settings">Start service on reboot</string>
+    <string name="autoboot_setting_infotext">If checked, this will auto-start the HBM-Service when you reboot your device</string>
+    <string name="automatic_hbm_switch_text">Automatic HBM</string>
+    <string name="button_goto_settings">Settings</string>
+    <string name="deactivate_hbm_button_text">HBM off</string>
+    <string name="deactivation_time_setting_infotext">The program will calculate the average light sensor value to deactivate HBM within this time</string>
+    <string name="hbm_lux_activation_limit">HBM-On Limit</string>
+    <string name="hbm_lux_deactivation_limit">HBM-Off Limit</string>
+    <string name="hbm_lux_settings">Settings</string>
+    <string name="hbm_off_setting_infotext">When the average light sensor value is lower than this value HBM will be deactivated</string>
+    <string name="hbm_on_setting_infotext">When the average light sensor value is higher than this value HBM will be activated</string>
+    <string name="lux_full_sleep_average_loop_activation">Activation-Time</string>
+    <string name="lux_full_sleep_average_loop_deactivation">Deactivation-Time</string>
+    <string name="lux_sensor_string">Sensor</string>
+    <string name="lux_values_average_loop">Number of values</string>
+    <string name="service_running_toast_text">HBM-Service started</string>
+    <string name="toast_not_root_access">HBM: No root access. Restart app</string>
+    <string name="values_setting_infotext">This represents the number of values the program will capture when calculating the average light sensor value</string>
+</resources>

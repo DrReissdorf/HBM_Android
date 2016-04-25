@@ -23,19 +23,20 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:minHeight="43dp">
 
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/imageButton6"
+            android:id="@+id/autoboot_imagebutton"
             android:src="@drawable/ic_info_black_24dp"
             android:background="#00ffffff"
             android:layout_marginLeft="10dp" />
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/auto_boot_settings"
             android:id="@+id/textView6"
@@ -46,12 +47,12 @@
 
         <Switch
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:id="@+id/autobootServiceSwitch"
             android:textAlignment="center"
-            android:textSize="20dp"
             android:checked="false"
-            android:layout_weight="2" />
+            android:layout_weight="2"
+            android:layout_gravity="center_horizontal" />
     </LinearLayout>
 
     <LinearLayout
@@ -62,7 +63,7 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/imageButton"
+            android:id="@+id/hbm_on_imagebutton"
             android:src="@drawable/ic_info_black_24dp"
             android:background="#00ffffff"
             android:layout_marginLeft="10dp" />
@@ -96,7 +97,7 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/imageButton2"
+            android:id="@+id/hbm_off_imagebutton"
             android:src="@drawable/ic_info_black_24dp"
             android:background="#00ffffff"
             android:layout_marginLeft="10dp" />
@@ -129,7 +130,7 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/imageButton3"
+            android:id="@+id/values_imagebutton"
             android:src="@drawable/ic_info_black_24dp"
             android:background="#00ffffff"
             android:layout_marginLeft="10dp" />
@@ -161,7 +162,7 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/imageButton5"
+            android:id="@+id/activation_time_imagebutton"
             android:src="@drawable/ic_info_black_24dp"
             android:background="#00ffffff"
             android:layout_marginLeft="10dp" />
@@ -193,7 +194,7 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/imageButton4"
+            android:id="@+id/deactivation_time_imagebutton"
             android:src="@drawable/ic_info_black_24dp"
             android:background="#00ffffff"
             android:layout_marginLeft="10dp" />

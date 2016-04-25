@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">High Brightness Mode</string>
+    <string name="activate_hbm_button_text">HBM an</string>
+    <string name="activation_time_setting_infotext">Innerhalb dieser Zeit (ms) berechnet das Programm den durchschnittlichen Licht-Sensor-Wert, welcher angibt, wann HBM aktiviert wird</string>
+    <string name="auto_boot_settings">Starte Service beim reboot</string>
+    <string name="autoboot_setting_infotext">Wenn aktiviert wird der HBM-Service automatisch beim hochfahren des Gerätes gestartet</string>
+    <string name="automatic_hbm_switch_text">Automatischer HBM-Modus</string>
+    <string name="button_goto_settings">Einstellungen</string>
+    <string name="deactivate_hbm_button_text">HBM aus</string>
+    <string name="deactivation_time_setting_infotext">Innerhalb dieser Zeit (ms) berechnet das Programm den durchschnittlichen Licht-Sensor-Wert, welcher angibt, wann HBM deaktiviert wird</string>
+    <string name="hbm_lux_activation_limit">HBM-Aktivierungslimit</string>
+    <string name="hbm_lux_deactivation_limit">HBM-Deaktivierungslimit</string>
+    <string name="hbm_lux_settings">Einstellungen</string>
+    <string name="hbm_off_setting_infotext">Wenn der durchschnittliche Licht-Sensor-Wert unter diesem Wert liegt, wird HBM deaktiviert</string>
+    <string name="hbm_on_setting_infotext">Wenn der durchschnittliche Licht-Sensor-Wert über diesem Wert liegt, wird HBM aktiviert</string>
+    <string name="lux_full_sleep_average_loop_activation">Aktivierungszeit</string>
+    <string name="lux_full_sleep_average_loop_deactivation">Deaktivierungszeit</string>
+    <string name="lux_sensor_string">Sensor</string>
+    <string name="lux_values_average_loop">Anzahl Werte</string>
+    <string name="service_running_toast_text">HBM-Service gestartet</string>
+    <string name="toast_not_root_access">HBM: Kein Root-Zugriff. App neustarten</string>
+    <string name="values_setting_infotext">Dieser Wert bestimmt, wie viele Licht-Sensor-Werte bei der Durchschnittsberechnung addiert werden</string>
+</resources>
