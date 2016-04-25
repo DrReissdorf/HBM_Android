@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
         prefs = getSharedPreferences(SharedPrefStrings.SHARED_PREFS_KEY,MODE_PRIVATE);
 
+        initSettings(prefs);
+
         luxTextView = (TextView) findViewById(R.id.luxTextView);
         button_hbm_on = (Button)findViewById(R.id.button_hbm_on);
         button_hbm_off = (Button)findViewById(R.id.button_hbm_off);
@@ -96,6 +98,34 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         Log.v("HBM","onDestroy()");
         super.onDestroy();
+    }
+
+    private void initSettings(SharedPreferences prefs) {
+        if(!prefs.contains(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING)) {
+            prefs.edit().putInt(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING,SharedPrefDefaults.DEFAULT_ACTIVATION_LIMIT).commit();
+        }
+        if(!prefs.contains(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING)) {
+            prefs.edit().putInt(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING,SharedPrefDefaults.DEFAULT_DEACTIVATION_LIMIT).commit();
+        }
+        if(!prefs.contains(SharedPrefStrings.AUTOMATIC_HBM_STRING)) {
+            prefs.edit().putBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false).commit();
+        }
+        if(!prefs.contains(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_ACTIVATION_STRING)) {
+            prefs.edit().putInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_ACTIVATION_STRING,SharedPrefDefaults.DEFAULT_ACTIVATION_FULLSLEEP).commit();
+        }
+        if(!prefs.contains(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_DEACTIVATION_STRING)) {
+            prefs.edit().putInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_DEACTIVATION_STRING,SharedPrefDefaults.DEFAULT_DEACTIVATION_FULLSLEEP).commit();
+        }
+        if(!prefs.contains(SharedPrefStrings.AVERAGE_LUX_VALUES_STRING)) {
+            prefs.edit().putInt(SharedPrefStrings.AVERAGE_LUX_VALUES_STRING,SharedPrefDefaults.DEFAULT_AVERAGE_VALUES).commit();
+        }
+        if(!prefs.contains(SharedPrefStrings.SERVICE_AUTO_BOOT)) {
+            prefs.edit().putBoolean(SharedPrefStrings.SERVICE_AUTO_BOOT,false).commit();
+        }
+        if(!prefs.contains(SharedPrefStrings.SCREEN_ACTIVATED)) {
+            prefs.edit().putBoolean(SharedPrefStrings.SCREEN_ACTIVATED,true).commit();
+        }
+
     }
 
     private void connectService() {

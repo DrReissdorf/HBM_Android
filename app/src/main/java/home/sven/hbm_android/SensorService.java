@@ -27,11 +27,6 @@ public class SensorService extends Service implements SensorEventListener {
 
     /* SHARED PREFERENCES */
     private SharedPreferences prefs;
-    private final int DEFAULT_ACTIVATION_LIMIT = 1500; //standard value if no sharedpref is found
-    private final int DEFAULT_DEACTIVATION_LIMIT = 750; //standard value if no sharedpref is found
-    private final int DEFAULT_ACTIVATION_FULLSLEEP = 1500; //standard value if no sharedpref is found
-    private final int DEFAULT_DEACTIVATION_FULLSLEEP = 3000; //standard value if no sharedpref is found
-    private final int DEFAULT_AVERAGE_VALUES = 10; //standard value if no sharedpref is found
 
     /* HBM VARIABLES */
     private final int SCREEN_OFF_SLEEP = 500; //sleeptime when screen is off
@@ -105,12 +100,12 @@ public class SensorService extends Service implements SensorEventListener {
                     if(prefs.getBoolean(SharedPrefStrings.SCREEN_ACTIVATED,true)) {
                         if (prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING, false)) { //is automode enabled?
                             int luxAdd = 0;
-                            int numberOfLuxValues = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_VALUES_STRING, DEFAULT_AVERAGE_VALUES); // for-loop which calucaltes average lux will loop NUMBER_OF_LUX_VALUE times
+                            int numberOfLuxValues = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_VALUES_STRING, SharedPrefDefaults.DEFAULT_AVERAGE_VALUES); // for-loop which calucaltes average lux will loop NUMBER_OF_LUX_VALUE times
 
                             if (!isHbmEnabled) {
-                                int luxActivationLimit = prefs.getInt(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING, DEFAULT_ACTIVATION_LIMIT); //when lux reaches this value, hbm will be activated
+                                int luxActivationLimit = prefs.getInt(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING, SharedPrefDefaults.DEFAULT_ACTIVATION_LIMIT); //when lux reaches this value, hbm will be activated
                                 int luxAverageActivateLimit = luxActivationLimit * numberOfLuxValues;
-                                int fullSleepAverageActivateLuxLoop_ms = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_ACTIVATION_STRING, DEFAULT_ACTIVATION_FULLSLEEP);
+                                int fullSleepAverageActivateLuxLoop_ms = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_ACTIVATION_STRING, SharedPrefDefaults.DEFAULT_ACTIVATION_FULLSLEEP);
                                 int sleepBetweenLuxValuesActivation = fullSleepAverageActivateLuxLoop_ms / numberOfLuxValues; // sleep time after one cycle in for-loop which calculates average-lux value for activation
 
                         /* AVERGE LUX OVER TIME CALCULATION ACTIVATION */
@@ -124,9 +119,9 @@ public class SensorService extends Service implements SensorEventListener {
                                     setHbm(true);
                                 }
                             } else {
-                                int luxDeactivationLimit = prefs.getInt(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING, DEFAULT_DEACTIVATION_LIMIT); // user-definable variable. when lux drops under this value, hbm will be deactivated
+                                int luxDeactivationLimit = prefs.getInt(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING, SharedPrefDefaults.DEFAULT_DEACTIVATION_LIMIT); // user-definable variable. when lux drops under this value, hbm will be deactivated
                                 int luxAverageDeactivateLimit = luxDeactivationLimit * numberOfLuxValues;
-                                int fullSleepAverageDeactivateLuxLoop_ms = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_DEACTIVATION_STRING, DEFAULT_DEACTIVATION_FULLSLEEP);
+                                int fullSleepAverageDeactivateLuxLoop_ms = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_DEACTIVATION_STRING, SharedPrefDefaults.DEFAULT_DEACTIVATION_FULLSLEEP);
                                 int sleepBetweenLuxValuesDeactivation = fullSleepAverageDeactivateLuxLoop_ms / numberOfLuxValues; // sleep time after one cycle in for-loop which calculates average-lux value for deactivation
 
                         /* AVERGE LUX OVER TIME CALCULATION DEACTIVATION */

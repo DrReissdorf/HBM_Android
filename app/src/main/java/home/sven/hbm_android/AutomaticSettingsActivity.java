@@ -44,7 +44,7 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
         });
 
         luxActivationLimitEditText = (EditText) findViewById(R.id.luxActivationLimitEditText);
-        luxActivationLimitEditText.setText(prefs.getInt(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING,2000)+"");
+        luxActivationLimitEditText.setText(prefs.getInt(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING,SharedPrefDefaults.DEFAULT_ACTIVATION_LIMIT)+"");
         luxActivationLimitEditText.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
                 int actInt;
@@ -62,7 +62,7 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
         });
 
         luxDeactivationLimitEditText = (EditText) findViewById(R.id.luxDeactivationLimitEditText);
-        luxDeactivationLimitEditText.setText(prefs.getInt(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING,1500)+"");
+        luxDeactivationLimitEditText.setText(prefs.getInt(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING,SharedPrefDefaults.DEFAULT_DEACTIVATION_LIMIT)+"");
         luxDeactivationLimitEditText.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
                 int deactInt;
@@ -79,7 +79,7 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
         });
 
         averageValuesEditText = (EditText) findViewById(R.id.averageValuesEditText);
-        averageValuesEditText.setText(prefs.getInt(SharedPrefStrings.AVERAGE_LUX_VALUES_STRING,10)+"");
+        averageValuesEditText.setText(prefs.getInt(SharedPrefStrings.AVERAGE_LUX_VALUES_STRING,SharedPrefDefaults.DEFAULT_AVERAGE_VALUES)+"");
         averageValuesEditText.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
                 int values;
@@ -96,7 +96,7 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
         });
 
         averageLoopActivationSleepEditText = (EditText) findViewById(R.id.averageLoopSleepActivationEditText);
-        averageLoopActivationSleepEditText.setText(prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_ACTIVATION_STRING,2000)+"");
+        averageLoopActivationSleepEditText.setText(prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_ACTIVATION_STRING,SharedPrefDefaults.DEFAULT_ACTIVATION_FULLSLEEP)+"");
         averageLoopActivationSleepEditText.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
                 int sleepTime;
@@ -113,7 +113,7 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
         });
 
         averageLoopDeactivationSleepEditText = (EditText) findViewById(R.id.averageLoopSleepDeactivationEditText);
-        averageLoopDeactivationSleepEditText.setText(prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_DEACTIVATION_STRING,2000)+"");
+        averageLoopDeactivationSleepEditText.setText(prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_DEACTIVATION_STRING,SharedPrefDefaults.DEFAULT_DEACTIVATION_FULLSLEEP)+"");
         averageLoopDeactivationSleepEditText.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
                 int sleepTime;
