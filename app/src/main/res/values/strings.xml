@@ -10,6 +10,7 @@
 
     <!-- activity_automatic_settings.xml strings -->
     <string name="hbm_lux_settings">Settings</string>
+    <string name="auto_boot_settings">Start service on reboot</string>
     <string name="hbm_lux_activation_limit">HBM-On Limit</string>
     <string name="hbm_lux_deactivation_limit">HBM-Off Limit</string>
     <string name="lux_values_average_loop">#values</string>

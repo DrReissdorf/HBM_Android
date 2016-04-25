@@ -1,9 +1,12 @@
-package home.sven.hbm_android;
+package home.sven.hbm_android.broadcast;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+
+import home.sven.hbm_android.SensorService;
+import home.sven.hbm_android.SharedPrefStrings;
 
 public class BootBroadcastReceiver extends BroadcastReceiver {
     final String ACTION = "android.intent.action.BOOT_COMPLETED";

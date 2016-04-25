@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -17,6 +19,7 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
     private EditText averageLoopDeactivationSleepEditText;
     private EditText luxActivationLimitEditText;
     private EditText luxDeactivationLimitEditText;
+    private Switch autobootServiceSwitch;
     private SharedPreferences prefs;
 
     @Override
@@ -25,6 +28,20 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_automatic_settings);
 
         prefs = getSharedPreferences(SharedPrefStrings.SHARED_PREFS_KEY,MODE_PRIVATE);
+
+        autobootServiceSwitch = (Switch) findViewById(R.id.autobootServiceSwitch);
+        autobootServiceSwitch.setChecked(prefs.getBoolean(SharedPrefStrings.SERVICE_AUTO_BOOT,false));
+        autobootServiceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.v("HBM SERVICE","HBM-Start-service on reboot: "+isChecked);
+                if(isChecked) {
+                    prefs.edit().putBoolean(SharedPrefStrings.SERVICE_AUTO_BOOT,true).commit();
+                }
+                else {
+                    prefs.edit().putBoolean(SharedPrefStrings.SERVICE_AUTO_BOOT,false).commit();
+                }
+            }
+        });
 
         luxActivationLimitEditText = (EditText) findViewById(R.id.luxActivationLimitEditText);
         luxActivationLimitEditText.setText(prefs.getInt(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING,2000)+"");
