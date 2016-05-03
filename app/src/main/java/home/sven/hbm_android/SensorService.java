@@ -29,7 +29,7 @@ public class SensorService extends Service implements SensorEventListener {
     private SharedPreferences prefs;
 
     /* HBM VARIABLES */
-    private final int SCREEN_OFF_SLEEP = 500; //sleeptime when screen is off
+    private final int SCREEN_OFF_SLEEP = 100; //sleeptime when screen is off
     private final int NO_AUTO_HBM_SLEEP = 2000; // when isHbmAutoMode is false, LuxThread will wait for this long before checking if isHbmAutoMode is true
     private boolean isHbmEnabled = false; // when hbm mode is on, this is true
 
