@@ -15,8 +15,9 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+
 import eu.chainfire.libsuperuser.Shell;
-import home.sven.hbm_android.broadcast.ScreenBroadcastReceiver;
+import home.sven.hbm_android.broadcast.BootBroadcastReceiver;
 
 public class SensorService extends Service implements SensorEventListener {
     /* BROADCAST RECEIVER */
@@ -27,11 +28,14 @@ public class SensorService extends Service implements SensorEventListener {
 
     /* SHARED PREFERENCES */
     private SharedPreferences prefs;
+    private SharedPreferences.OnSharedPreferenceChangeListener myPrefListener;
 
     /* HBM VARIABLES */
-    private final int SCREEN_OFF_SLEEP = 100; //sleeptime when screen is off
-    private final int NO_AUTO_HBM_SLEEP = 2000; // when isHbmAutoMode is false, LuxThread will wait for this long before checking if isHbmAutoMode is true
-    private boolean isHbmEnabled = false; // when hbm mode is on, this is true
+    private int luxActivationLimit;
+    private int luxDeactivationLimit; // user-definable variable. when lux drops under this value, hbm will be deactivated
+    private boolean automaticHbmModeEnabled;
+    private boolean isScreenOn = true;
+    private boolean isHbmOn = false;
 
     @Override
     public void onCreate() {
@@ -51,12 +55,34 @@ public class SensorService extends Service implements SensorEventListener {
         registerReceiver(screenBroadcastReceiver, filter);
         /********************************************************************************/
 
-        prefs = getSharedPreferences(SharedPrefStrings.SHARED_PREFS_KEY,MODE_PRIVATE);
+        prefs = getSharedPreferences(SharedPrefs.SHARED_PREFS_KEY,MODE_PRIVATE);
+        initSettings(prefs);
 
-        /* init screenflag with true */
-        prefs.edit().putBoolean(SharedPrefStrings.SCREEN_ACTIVATED,true);
+        luxActivationLimit = prefs.getInt(SharedPrefs.LUX_ACTIVATION_LIMIT_STRING, SharedPrefs.DEFAULT_ACTIVATION_LIMIT);
+        luxDeactivationLimit = prefs.getInt(SharedPrefs.LUX_DEACTIVATION_LIMIT_STRING, SharedPrefs.DEFAULT_DEACTIVATION_LIMIT); // user-definable variable. when lux drops under this value, hbm will be deactivated
+        automaticHbmModeEnabled = prefs.getBoolean(SharedPrefs.AUTOMATIC_HBM_STRING, false);
 
-        new LuxThread().start();
+        /* LISTENER FOR SETTINGS */
+        myPrefListener = new SharedPreferences.OnSharedPreferenceChangeListener(){
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                switch(key) {
+                    case SharedPrefs.LUX_ACTIVATION_LIMIT_STRING:
+                        luxActivationLimit = prefs.getInt(SharedPrefs.LUX_ACTIVATION_LIMIT_STRING, SharedPrefs.DEFAULT_ACTIVATION_LIMIT);
+                        break;
+
+                    case SharedPrefs.LUX_DEACTIVATION_LIMIT_STRING:
+                        luxDeactivationLimit = prefs.getInt(SharedPrefs.LUX_DEACTIVATION_LIMIT_STRING, SharedPrefs.DEFAULT_DEACTIVATION_LIMIT);
+                        break;
+
+                    case SharedPrefs.AUTOMATIC_HBM_STRING:
+                        automaticHbmModeEnabled = prefs.getBoolean(SharedPrefs.AUTOMATIC_HBM_STRING, false);
+                        break;
+                }
+            }
+        };
+        prefs.registerOnSharedPreferenceChangeListener(myPrefListener);
+
+        setHbm(false);
     }
 
     @Override
@@ -68,99 +94,8 @@ public class SensorService extends Service implements SensorEventListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.v("HBM","##### Service - onStartCommand() #####");
-
+        postToastOnMainThread(getString(R.string.service_running_toast_text));
         return START_STICKY; // We want this service to continue running until it is explicitly stopped, so return sticky.
-    }
-
-    public int getLux() {
-        return (int)lux;
-    }
-
-
-    public void setHbm(boolean toEnable) {
-        Log.v("HBM SERVICE","setHbm(): "+toEnable);
-        if(toEnable) {
-            Shell.SU.run("echo 1 > /sys/devices/virtual/graphics/fb0/hbm");
-            isHbmEnabled = true;
-        }
-        else {
-            Shell.SU.run("echo 0 > /sys/devices/virtual/graphics/fb0/hbm");
-            isHbmEnabled = false;
-        }
-    }
-
-    private class LuxThread extends Thread {
-        public void run() {
-            lux = 0;
-
-            postToastOnMainThread(getString(R.string.service_running_toast_text));
-
-            while(true) {
-                try {
-                    if(prefs.getBoolean(SharedPrefStrings.SCREEN_ACTIVATED,true)) {
-                        if (prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING, false)) { //is automode enabled?
-                            int luxAdd = 0;
-                            int numberOfLuxValues = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_VALUES_STRING, SharedPrefDefaults.DEFAULT_AVERAGE_VALUES); // for-loop which calucaltes average lux will loop NUMBER_OF_LUX_VALUE times
-
-                            if (!isHbmEnabled) {
-                                int luxActivationLimit = prefs.getInt(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING, SharedPrefDefaults.DEFAULT_ACTIVATION_LIMIT); //when lux reaches this value, hbm will be activated
-                                int luxAverageActivateLimit = luxActivationLimit * numberOfLuxValues;
-                                int fullSleepAverageActivateLuxLoop_ms = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_ACTIVATION_STRING, SharedPrefDefaults.DEFAULT_ACTIVATION_FULLSLEEP);
-                                int sleepBetweenLuxValuesActivation = fullSleepAverageActivateLuxLoop_ms / numberOfLuxValues; // sleep time after one cycle in for-loop which calculates average-lux value for activation
-
-                        /* AVERGE LUX OVER TIME CALCULATION ACTIVATION */
-                                for (int i = 0; i < numberOfLuxValues; i++) {
-                                    sleep(sleepBetweenLuxValuesActivation);
-                                    luxAdd += lux;
-                                }
-
-                                /***********************************************/
-                                if (luxAdd >= luxAverageActivateLimit) {
-                                    setHbm(true);
-                                }
-                            } else {
-                                int luxDeactivationLimit = prefs.getInt(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING, SharedPrefDefaults.DEFAULT_DEACTIVATION_LIMIT); // user-definable variable. when lux drops under this value, hbm will be deactivated
-                                int luxAverageDeactivateLimit = luxDeactivationLimit * numberOfLuxValues;
-                                int fullSleepAverageDeactivateLuxLoop_ms = prefs.getInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_DEACTIVATION_STRING, SharedPrefDefaults.DEFAULT_DEACTIVATION_FULLSLEEP);
-                                int sleepBetweenLuxValuesDeactivation = fullSleepAverageDeactivateLuxLoop_ms / numberOfLuxValues; // sleep time after one cycle in for-loop which calculates average-lux value for deactivation
-
-                        /* AVERGE LUX OVER TIME CALCULATION DEACTIVATION */
-                                for (int i = 0; i < numberOfLuxValues; i++) {
-                                    sleep(sleepBetweenLuxValuesDeactivation);
-                                    luxAdd += lux;
-                                }
-                                /*************************************************/
-
-                                if (luxAdd < luxAverageDeactivateLimit) {
-                                    Log.v("HBM SERVICE", "Diabling HBM! Average Lux-Value: " + luxAdd + ". Disable-border: " + luxAverageDeactivateLimit);
-                                    setHbm(false);
-                                } else {
-                                    Log.v("HBM SERVICE", "Keeping HBM enabled! Average Lux-Value: " + luxAdd + ". Disable-border: " + luxAverageDeactivateLimit);
-                                    setHbm(true);
-                                }
-                            }
-                        } else {
-                            sleep(NO_AUTO_HBM_SLEEP);
-                        }
-                    } else {
-                        sleep(SCREEN_OFF_SLEEP);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    @Override
-    public final void onAccuracyChanged(android.hardware.Sensor sensor, int accuracy) {
-        // Do something here if sensor accuracy changes.
-    }
-
-    @Override
-    public final void onSensorChanged(SensorEvent event) {
-        lux = event.values[0];
-        // Do something with this sensor data.
     }
 
     private void postToastOnMainThread(final String message) {
@@ -168,11 +103,64 @@ public class SensorService extends Service implements SensorEventListener {
         h.post(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(getApplicationContext(),message,Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),message, Toast.LENGTH_LONG).show();
             }
         });
     }
 
+    public int getLux() {
+        return (int)lux;
+    }
+
+    public void setHbm(boolean toEnable) {
+        Log.v("HBM SERVICE","setHbm(): "+toEnable);
+        if(toEnable) {
+            isHbmOn = true;
+            Shell.SU.run("echo 1 > /sys/devices/virtual/graphics/fb0/hbm");
+        }
+        else {
+            isHbmOn = false;
+            Shell.SU.run("echo 0 > /sys/devices/virtual/graphics/fb0/hbm");
+        }
+    }
+
+    @Override
+    public final void onAccuracyChanged(android.hardware.Sensor sensor, int accuracy) {}
+
+    @Override
+    public final void onSensorChanged(SensorEvent event) {
+        lux = event.values[0];
+
+        if(isScreenOn && automaticHbmModeEnabled) {
+            if(lux > luxActivationLimit && !isHbmOn) {
+                setHbm(true);
+            } else {
+                if(lux <= luxDeactivationLimit && isHbmOn) {
+                    setHbm(false);
+                }
+            }
+        }
+    }
+
+    private void initSettings(SharedPreferences prefs) {
+        if(!prefs.contains(SharedPrefs.LUX_ACTIVATION_LIMIT_STRING)) {
+            prefs.edit().putInt(SharedPrefs.LUX_ACTIVATION_LIMIT_STRING,SharedPrefs.DEFAULT_ACTIVATION_LIMIT).commit();
+        }
+        if(!prefs.contains(SharedPrefs.LUX_DEACTIVATION_LIMIT_STRING)) {
+            prefs.edit().putInt(SharedPrefs.LUX_DEACTIVATION_LIMIT_STRING,SharedPrefs.DEFAULT_DEACTIVATION_LIMIT).commit();
+        }
+        if(!prefs.contains(SharedPrefs.AUTOMATIC_HBM_STRING)) {
+            prefs.edit().putBoolean(SharedPrefs.AUTOMATIC_HBM_STRING,false).commit();
+        }
+        if(!prefs.contains(SharedPrefs.SERVICE_AUTO_BOOT)) {
+            prefs.edit().putBoolean(SharedPrefs.SERVICE_AUTO_BOOT,false).commit();
+        }
+        if(!prefs.contains(SharedPrefs.SCREEN_ACTIVATED)) {
+            prefs.edit().putBoolean(SharedPrefs.SCREEN_ACTIVATED,true).commit();
+        }
+    }
+
+    /**************************** SERVICE BINDING *********************************/
     // Binder: Hierüber kann eine andere Komponente, die im selben Prozess läuft,
     // auf den Service zugreifen
     private final IBinder addBinder = new SensorServiceBinder();
@@ -191,6 +179,21 @@ public class SensorService extends Service implements SensorEventListener {
     public IBinder onBind(Intent intent) {
         Log.v("HBM-Service","##### Service - onBind() #####");
         return addBinder;
+    }
+    /*******************************************************************************/
+
+    private class ScreenBroadcastReceiver extends BootBroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                setHbm(false);
+                isScreenOn = false;
+                Log.v("Hbm","screen deactivated");
+            } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                isScreenOn = true;
+                Log.v("Hbm","screen activated");
+            }
+        }
     }
 }
 

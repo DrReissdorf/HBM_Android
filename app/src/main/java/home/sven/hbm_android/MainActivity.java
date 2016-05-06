@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -36,15 +35,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        prefs = getSharedPreferences(SharedPrefStrings.SHARED_PREFS_KEY,MODE_PRIVATE);
-
-        initSettings(prefs);
+        prefs = getSharedPreferences(SharedPrefs.SHARED_PREFS_KEY,MODE_PRIVATE);
 
         luxTextView = (TextView) findViewById(R.id.luxTextView);
         button_hbm_on = (Button)findViewById(R.id.button_hbm_on);
         button_hbm_off = (Button)findViewById(R.id.button_hbm_off);
 
-        if(prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false)) {
+        if(prefs.getBoolean(SharedPrefs.AUTOMATIC_HBM_STRING,false)) {
             button_hbm_on.setEnabled(false);
             button_hbm_off.setEnabled(false);
             button_hbm_on.setVisibility(View.INVISIBLE);
@@ -52,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         automaticHbmSwitch = (Switch) findViewById(R.id.automaticHbmSwitch);
-        automaticHbmSwitch.setChecked(prefs.getBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false));
+        automaticHbmSwitch.setChecked(prefs.getBoolean(SharedPrefs.AUTOMATIC_HBM_STRING,false));
         automaticHbmSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
@@ -67,8 +64,9 @@ public class MainActivity extends AppCompatActivity {
                     button_hbm_on.setVisibility(View.VISIBLE);
                     button_hbm_off.setVisibility(View.VISIBLE);
                 }
+
                 Log.v("HBM SERVICE","HBM-Auto-Mode: "+isChecked);
-                prefs.edit().putBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,isChecked).commit();
+                prefs.edit().putBoolean(SharedPrefs.AUTOMATIC_HBM_STRING,isChecked).commit();
             }
         });
 
@@ -100,33 +98,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private void initSettings(SharedPreferences prefs) {
-        if(!prefs.contains(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING)) {
-            prefs.edit().putInt(SharedPrefStrings.LUX_ACTIVATION_LIMIT_STRING,SharedPrefDefaults.DEFAULT_ACTIVATION_LIMIT).commit();
-        }
-        if(!prefs.contains(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING)) {
-            prefs.edit().putInt(SharedPrefStrings.LUX_DEACTIVATION_LIMIT_STRING,SharedPrefDefaults.DEFAULT_DEACTIVATION_LIMIT).commit();
-        }
-        if(!prefs.contains(SharedPrefStrings.AUTOMATIC_HBM_STRING)) {
-            prefs.edit().putBoolean(SharedPrefStrings.AUTOMATIC_HBM_STRING,false).commit();
-        }
-        if(!prefs.contains(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_ACTIVATION_STRING)) {
-            prefs.edit().putInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_ACTIVATION_STRING,SharedPrefDefaults.DEFAULT_ACTIVATION_FULLSLEEP).commit();
-        }
-        if(!prefs.contains(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_DEACTIVATION_STRING)) {
-            prefs.edit().putInt(SharedPrefStrings.AVERAGE_LUX_FULL_SLEEP_DEACTIVATION_STRING,SharedPrefDefaults.DEFAULT_DEACTIVATION_FULLSLEEP).commit();
-        }
-        if(!prefs.contains(SharedPrefStrings.AVERAGE_LUX_VALUES_STRING)) {
-            prefs.edit().putInt(SharedPrefStrings.AVERAGE_LUX_VALUES_STRING,SharedPrefDefaults.DEFAULT_AVERAGE_VALUES).commit();
-        }
-        if(!prefs.contains(SharedPrefStrings.SERVICE_AUTO_BOOT)) {
-            prefs.edit().putBoolean(SharedPrefStrings.SERVICE_AUTO_BOOT,false).commit();
-        }
-        if(!prefs.contains(SharedPrefStrings.SCREEN_ACTIVATED)) {
-            prefs.edit().putBoolean(SharedPrefStrings.SCREEN_ACTIVATED,true).commit();
-        }
 
-    }
 
     private void connectService() {
         myConn = new ConnectionToSensorService();
