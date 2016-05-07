@@ -1,6 +1,8 @@
 package home.sven.hbm_android;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -41,7 +43,7 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
         autoboot_imagebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Alerter.alertWithOkButton(context,"",getString(R.string.autoboot_setting_infotext));
+                alertWithOkButton(context,"",getString(R.string.autoboot_setting_infotext));
             }
         });
 
@@ -49,7 +51,7 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
         hbm_on_imagebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Alerter.alertWithOkButton(context,"",getString(R.string.hbm_on_setting_infotext));
+                alertWithOkButton(context,"",getString(R.string.hbm_on_setting_infotext));
             }
         });
 
@@ -57,7 +59,7 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
         hbm_off_imagebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Alerter.alertWithOkButton(context,"",getString(R.string.hbm_off_setting_infotext));
+                alertWithOkButton(context,"",getString(R.string.hbm_off_setting_infotext));
             }
         });
     }
@@ -111,5 +113,18 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
         });
+    }
+
+    private void alertWithOkButton(Context context, String title, String message) {
+        new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 }

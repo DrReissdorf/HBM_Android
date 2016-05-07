@@ -76,13 +76,14 @@ public class SensorService extends Service implements SensorEventListener {
 
                     case SharedPrefs.AUTOMATIC_HBM_STRING:
                         automaticHbmModeEnabled = prefs.getBoolean(SharedPrefs.AUTOMATIC_HBM_STRING, false);
+                        setHbm(false);
                         break;
                 }
             }
         };
         prefs.registerOnSharedPreferenceChangeListener(myPrefListener);
 
-        setHbm(false);
+        setHbm(false); // start app with hbm false
     }
 
     @Override
@@ -108,11 +109,7 @@ public class SensorService extends Service implements SensorEventListener {
         });
     }
 
-    public int getLux() {
-        return (int)lux;
-    }
-
-    public void setHbm(boolean toEnable) {
+    private void setHbm(boolean toEnable) {
         Log.v("HBM SERVICE","setHbm(): "+toEnable);
         if(toEnable) {
             isHbmOn = true;

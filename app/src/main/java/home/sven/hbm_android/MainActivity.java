@@ -1,11 +1,12 @@
 package home.sven.hbm_android;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.os.IBinder;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,11 +16,11 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+import eu.chainfire.libsuperuser.Shell;
+
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private final Context context = this;
-    private SensorService myService;  // Service, der aufgerufen werden soll
-    private SensorService.SensorServiceBinder myBinder;  // Binder des Service
-    private ConnectionToSensorService myConn;  // Überwacher der Verbindung zum Service
+    private final int UPDATE_LIGHT_VALUE_SLEEP = 500;
 
     private TextView luxTextView;
     private Switch automaticHbmSwitch;
@@ -27,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     private Button button_hbm_off;
 
     private SharedPreferences prefs;
+
+    private int lux;
 
     private UpdateThread updateThread;
 
@@ -36,6 +39,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         prefs = getSharedPreferences(SharedPrefs.SHARED_PREFS_KEY,MODE_PRIVATE);
+
+        /************************** SENSOR LISTENER ************************************/
+        SensorManager mSensorManager;
+        android.hardware.Sensor mLight;
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
+        /********************************************************************************/
 
         luxTextView = (TextView) findViewById(R.id.luxTextView);
         button_hbm_on = (Button)findViewById(R.id.button_hbm_on);
@@ -70,13 +81,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        startSensorService();
     }
 
     public void onResume() {
         super.onResume();
         Log.v("HBM","onResume()");
-        connectService();
         updateThread = new UpdateThread();
         updateThread.start();
     }
@@ -85,12 +95,6 @@ public class MainActivity extends AppCompatActivity {
         Log.v("HBM","onPause()");
         super.onPause();
         updateThread.stopThread();
-
-        try {
-            context.unbindService(myConn);
-        } catch (IllegalArgumentException e){
-            Log.v("HBM","onPause() couldnt unbind");
-        }
     }
 
     public void onDestroy() {
@@ -98,13 +102,19 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+    private void setHbm(boolean toEnable) {
+        Log.v("HBM SERVICE","setHbm(): "+toEnable);
+        if(toEnable) {
+            Shell.SU.run("echo 1 > /sys/devices/virtual/graphics/fb0/hbm");
+        }
+        else {
+            Shell.SU.run("echo 0 > /sys/devices/virtual/graphics/fb0/hbm");
+        }
+    }
 
-
-    private void connectService() {
-        myConn = new ConnectionToSensorService();
+    private void startSensorService() {
         Intent serviceIntent = new Intent(context, SensorService.class);
         context.startService(serviceIntent);
-        bindService(serviceIntent, myConn, Context.BIND_AUTO_CREATE); //calls onServiceConnected in ConnectionToSensorService-Class
     }
 
     public void buttonClickListener(View v) {
@@ -112,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.button_hbm_on:
                 Log.v("HBM","onButtonOnClickListener()");
                 try {
-                    myService.setHbm(true);
+                    setHbm(true);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -121,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.button_hbm_off:
                 Log.v("HBM","offButtonOnClickListener()");
                 try {
-                    myService.setHbm(false);
+                    setHbm(false);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -135,21 +145,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class ConnectionToSensorService implements ServiceConnection {
-        public ConnectionToSensorService() {
-            Log.v("HBM","ConnectionToSensorService: starting #####");
-        }
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        lux = (int)event.values[0];
+    }
 
-        public void onServiceConnected(ComponentName className, IBinder binder) {
-            Log.v("HBM","##### Activity - onServiceConnected(): starting #####");
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
-            myBinder = (SensorService.SensorServiceBinder) binder;
-            myService = myBinder.getService();
-        }
-
-        public void onServiceDisconnected(ComponentName className) {
-            Log.v("HBM","##### Activity - onServiceDisconnected() #####");
-        }
     }
 
     private void setLuxText(String text) {
@@ -160,16 +163,12 @@ public class MainActivity extends AppCompatActivity {
         private boolean exit = false;
 
         public void run() {
-            while(myService == null) {
-                sleep(250);
-            }
-
             while(!exit) {
-                sleep(250);
+                sleep(UPDATE_LIGHT_VALUE_SLEEP);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        setLuxText(getString(R.string.lux_sensor_string)+" "+myService.getLux());
+                        setLuxText(getString(R.string.lux_sensor_string)+" "+lux);
                     }
                 });
             }
