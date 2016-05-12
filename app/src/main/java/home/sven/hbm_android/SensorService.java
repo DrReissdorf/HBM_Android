@@ -1,5 +1,6 @@
 package home.sven.hbm_android;
 
+import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,6 +16,9 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
 
 import eu.chainfire.libsuperuser.Shell;
 import home.sven.hbm_android.broadcast.BootBroadcastReceiver;
@@ -37,6 +41,8 @@ public class SensorService extends Service implements SensorEventListener {
     private boolean isScreenOn = true;
     private boolean isHbmOn = false;
 
+    Shell.Interactive rootSession;
+
     @Override
     public void onCreate() {
         Log.v("DEMO","##### Service - onCreate() #####");
@@ -54,6 +60,25 @@ public class SensorService extends Service implements SensorEventListener {
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(screenBroadcastReceiver, filter);
         /********************************************************************************/
+
+         rootSession = new Shell.Builder().
+                useSU().
+                setWantSTDERR(true).
+                setWatchdogTimeout(5).
+                setMinimalLogging(true).
+                open(new Shell.OnCommandResultListener() {
+
+                    // Callback to report whether the shell was successfully started up
+                    @Override
+                    public void onCommandResult(int commandCode, int exitCode, List<String> output) {
+                        if (exitCode != Shell.OnCommandResultListener.SHELL_RUNNING) {
+                            Log.v("shell error","Error opening root shell: exitCode " + exitCode);
+                        } else {
+                            // Shell is up: send our first request
+
+                        }
+                    }
+                });
 
         prefs = getSharedPreferences(SharedPrefs.SHARED_PREFS_KEY,MODE_PRIVATE);
         initSettings(prefs);
@@ -111,14 +136,18 @@ public class SensorService extends Service implements SensorEventListener {
 
     private void setHbm(boolean toEnable) {
         Log.v("HBM SERVICE","setHbm(): "+toEnable);
-        if(toEnable) {
+
+        if (toEnable) {
             isHbmOn = true;
-            Shell.SU.run("echo 1 > /sys/devices/virtual/graphics/fb0/hbm");
-        }
-        else {
+            executeShellCmd("echo 1 > /sys/devices/virtual/graphics/fb0/hbm");
+        } else {
             isHbmOn = false;
-            Shell.SU.run("echo 0 > /sys/devices/virtual/graphics/fb0/hbm");
+            executeShellCmd("echo 0 > /sys/devices/virtual/graphics/fb0/hbm");
         }
+    }
+
+    private void executeShellCmd(String cmd) {
+        rootSession.addCommand(cmd);
     }
 
     @Override

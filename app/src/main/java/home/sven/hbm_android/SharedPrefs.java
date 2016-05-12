@@ -10,5 +10,5 @@ public class SharedPrefs {
 
     /* DEFAULTS */
     public static final int DEFAULT_ACTIVATION_LIMIT = 2000; //standard value if no sharedpref is found
-    public static final int DEFAULT_DEACTIVATION_LIMIT = 1200; //standard value if no sharedpref is found
+    public static final int DEFAULT_DEACTIVATION_LIMIT = 800; //standard value if no sharedpref is found
 }
