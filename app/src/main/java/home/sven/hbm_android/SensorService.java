@@ -16,7 +16,11 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.List;
 
@@ -35,6 +39,11 @@ public class SensorService extends Service implements SensorEventListener {
     private SharedPreferences.OnSharedPreferenceChangeListener myPrefListener;
 
     /* HBM VARIABLES */
+    private Process runtimeProcess;
+    private InputStream runtimeProcessInputStream;
+    private OutputStream runtimeProcessOutputStream;
+
+    private List<String> cmdOutput;
     private int luxActivationLimit;
     private int luxDeactivationLimit; // user-definable variable. when lux drops under this value, hbm will be deactivated
     private boolean automaticHbmModeEnabled;
@@ -61,7 +70,15 @@ public class SensorService extends Service implements SensorEventListener {
         registerReceiver(screenBroadcastReceiver, filter);
         /********************************************************************************/
 
-         rootSession = new Shell.Builder().
+        try {
+            runtimeProcess = Runtime.getRuntime().exec("su");
+            runtimeProcessInputStream = runtimeProcess.getInputStream();
+            runtimeProcessOutputStream = runtimeProcess.getOutputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        rootSession = new Shell.Builder().
                 useSU().
                 setWantSTDERR(true).
                 setWatchdogTimeout(5).
@@ -147,7 +164,45 @@ public class SensorService extends Service implements SensorEventListener {
     }
 
     private void executeShellCmd(String cmd) {
-        rootSession.addCommand(cmd);
+        try {
+            runtimeProcessOutputStream.write(((cmd + "\n").getBytes()));
+            runtimeProcessOutputStream.flush();
+        } catch (Exception e) {
+
+        }
+    }
+
+    private String executeShellCmdWithReturn(String cmd) {
+        String line;
+        String ret = null;
+
+        try {
+            runtimeProcessOutputStream.write(((cmd + "\n").getBytes()));
+            runtimeProcessOutputStream.flush();
+            BufferedReader br = new BufferedReader(new InputStreamReader(runtimeProcessInputStream));
+
+            System.out.println("read...");
+            while ((line = br.readLine()) != null) {
+                Log.d("[Output]", line);
+                System.out.println("got it!");
+
+                ret = line;
+            }
+            br.close();
+
+
+          /*  br = new BufferedReader(new InputStreamReader(runtimeProcessInputStream));
+            if(br.ready()) {
+                while ((line = br.readLine()) != null) {
+                    Log.e("[Error]", line);
+
+
+                }
+            } */
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ret;
     }
 
     @Override
@@ -156,7 +211,7 @@ public class SensorService extends Service implements SensorEventListener {
     @Override
     public final void onSensorChanged(SensorEvent event) {
         lux = event.values[0];
-
+        isHbmOn();
         if(isScreenOn && automaticHbmModeEnabled) {
             if(lux > luxActivationLimit && !isHbmOn) {
                 setHbm(true);
@@ -166,6 +221,10 @@ public class SensorService extends Service implements SensorEventListener {
                 }
             }
         }
+    }
+
+    private void isHbmOn() {
+        Log.v("isHbmOn",executeShellCmdWithReturn("cat /sys/devices/virtual/graphics/fb0/hbm"));
     }
 
     private void initSettings(SharedPreferences prefs) {
