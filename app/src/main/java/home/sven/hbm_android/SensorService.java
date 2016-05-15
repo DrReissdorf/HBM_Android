@@ -1,5 +1,7 @@
 package home.sven.hbm_android;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -7,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -14,10 +17,13 @@ import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,15 +48,15 @@ public class SensorService extends Service implements SensorEventListener {
     private Process runtimeProcess;
     private InputStream runtimeProcessInputStream;
     private OutputStream runtimeProcessOutputStream;
+    private BufferedReader br;
 
-    private List<String> cmdOutput;
     private int luxActivationLimit;
     private int luxDeactivationLimit; // user-definable variable. when lux drops under this value, hbm will be deactivated
     private boolean automaticHbmModeEnabled;
     private boolean isScreenOn = true;
     private boolean isHbmOn = false;
 
-    Shell.Interactive rootSession;
+   // Shell.Interactive rootSession;
 
     @Override
     public void onCreate() {
@@ -74,11 +80,11 @@ public class SensorService extends Service implements SensorEventListener {
             runtimeProcess = Runtime.getRuntime().exec("su");
             runtimeProcessInputStream = runtimeProcess.getInputStream();
             runtimeProcessOutputStream = runtimeProcess.getOutputStream();
+            br = new BufferedReader(new InputStreamReader(runtimeProcessInputStream));
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        rootSession = new Shell.Builder().
+     /*   rootSession = new Shell.Builder().
                 useSU().
                 setWantSTDERR(true).
                 setWatchdogTimeout(5).
@@ -95,7 +101,7 @@ public class SensorService extends Service implements SensorEventListener {
 
                         }
                     }
-                });
+                }); */
 
         prefs = getSharedPreferences(SharedPrefs.SHARED_PREFS_KEY,MODE_PRIVATE);
         initSettings(prefs);
@@ -172,46 +178,13 @@ public class SensorService extends Service implements SensorEventListener {
         }
     }
 
-    private String executeShellCmdWithReturn(String cmd) {
-        String line;
-        String ret = null;
-
-        try {
-            runtimeProcessOutputStream.write(((cmd + "\n").getBytes()));
-            runtimeProcessOutputStream.flush();
-            BufferedReader br = new BufferedReader(new InputStreamReader(runtimeProcessInputStream));
-
-            System.out.println("read...");
-            while ((line = br.readLine()) != null) {
-                Log.d("[Output]", line);
-                System.out.println("got it!");
-
-                ret = line;
-            }
-            br.close();
-
-
-          /*  br = new BufferedReader(new InputStreamReader(runtimeProcessInputStream));
-            if(br.ready()) {
-                while ((line = br.readLine()) != null) {
-                    Log.e("[Error]", line);
-
-
-                }
-            } */
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ret;
-    }
-
     @Override
     public final void onAccuracyChanged(android.hardware.Sensor sensor, int accuracy) {}
 
     @Override
     public final void onSensorChanged(SensorEvent event) {
         lux = event.values[0];
-        isHbmOn();
+
         if(isScreenOn && automaticHbmModeEnabled) {
             if(lux > luxActivationLimit && !isHbmOn) {
                 setHbm(true);
@@ -221,10 +194,6 @@ public class SensorService extends Service implements SensorEventListener {
                 }
             }
         }
-    }
-
-    private void isHbmOn() {
-        Log.v("isHbmOn",executeShellCmdWithReturn("cat /sys/devices/virtual/graphics/fb0/hbm"));
     }
 
     private void initSettings(SharedPreferences prefs) {
