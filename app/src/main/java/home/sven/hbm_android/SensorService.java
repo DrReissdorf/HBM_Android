@@ -46,17 +46,13 @@ public class SensorService extends Service implements SensorEventListener {
 
     /* HBM VARIABLES */
     private Process runtimeProcess;
-    private InputStream runtimeProcessInputStream;
     private OutputStream runtimeProcessOutputStream;
-    private BufferedReader br;
 
     private int luxActivationLimit;
     private int luxDeactivationLimit; // user-definable variable. when lux drops under this value, hbm will be deactivated
     private boolean automaticHbmModeEnabled;
     private boolean isScreenOn = true;
     private boolean isHbmOn = false;
-
-   // Shell.Interactive rootSession;
 
     @Override
     public void onCreate() {
@@ -78,30 +74,10 @@ public class SensorService extends Service implements SensorEventListener {
 
         try {
             runtimeProcess = Runtime.getRuntime().exec("su");
-            runtimeProcessInputStream = runtimeProcess.getInputStream();
             runtimeProcessOutputStream = runtimeProcess.getOutputStream();
-            br = new BufferedReader(new InputStreamReader(runtimeProcessInputStream));
         } catch (IOException e) {
             e.printStackTrace();
         }
-     /*   rootSession = new Shell.Builder().
-                useSU().
-                setWantSTDERR(true).
-                setWatchdogTimeout(5).
-                setMinimalLogging(true).
-                open(new Shell.OnCommandResultListener() {
-
-                    // Callback to report whether the shell was successfully started up
-                    @Override
-                    public void onCommandResult(int commandCode, int exitCode, List<String> output) {
-                        if (exitCode != Shell.OnCommandResultListener.SHELL_RUNNING) {
-                            Log.v("shell error","Error opening root shell: exitCode " + exitCode);
-                        } else {
-                            // Shell is up: send our first request
-
-                        }
-                    }
-                }); */
 
         prefs = getSharedPreferences(SharedPrefs.SHARED_PREFS_KEY,MODE_PRIVATE);
         initSettings(prefs);
