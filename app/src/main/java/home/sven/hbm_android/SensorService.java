@@ -27,6 +27,7 @@ public class SensorService extends Service implements SensorEventListener {
 
     /* SENSOR VARIABLE */
     private float lux; // light sensor will store its value in this variable
+    private boolean isRunning = false;
 
     /* SHARED PREFERENCES */
     private SharedPreferences prefs;
@@ -107,7 +108,10 @@ public class SensorService extends Service implements SensorEventListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.v("HBM","##### Service - onStartCommand() #####");
-        postToastOnMainThread(getString(R.string.service_running_toast_text));
+        if(!isRunning) {
+            postToastOnMainThread(getString(R.string.service_running_toast_text));
+            isRunning = true;
+        }
         return START_STICKY; // We want this service to continue running until it is explicitly stopped, so return sticky.
     }
 
