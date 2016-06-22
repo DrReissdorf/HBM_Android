@@ -100,6 +100,12 @@ public class SensorService extends Service implements SensorEventListener {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(screenBroadcastReceiver);
+    }
+
+    @Override
     public boolean onUnbind(Intent intent) {
         Log.v("HBM","##### Service - onUnbind() #####");
         return true;
