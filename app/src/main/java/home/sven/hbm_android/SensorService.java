@@ -31,7 +31,6 @@ public class SensorService extends Service implements SensorEventListener {
 
     /* SHARED PREFERENCES */
     private SharedPreferences prefs;
-    private SharedPreferences.OnSharedPreferenceChangeListener myPrefListener;
 
     /* HBM VARIABLES */
     private Process runtimeProcess;
@@ -75,16 +74,14 @@ public class SensorService extends Service implements SensorEventListener {
         }
         /********************************************************************************/
 
-
+        /************************ INIT SHARED PREFERENCES *******************************/
         prefs = getSharedPreferences(SharedPrefs.SHARED_PREFS_KEY,MODE_PRIVATE);
         initSettings(prefs);
+        /********************************************************************************/
 
-        luxActivationLimit = prefs.getInt(SharedPrefs.LUX_ACTIVATION_LIMIT_STRING, SharedPrefs.DEFAULT_ACTIVATION_LIMIT);
-        luxDeactivationLimit = prefs.getInt(SharedPrefs.LUX_DEACTIVATION_LIMIT_STRING, SharedPrefs.DEFAULT_DEACTIVATION_LIMIT); // user-definable variable. when lux drops under this value, hbm will be deactivated
-        automaticHbmModeEnabled = prefs.getBoolean(SharedPrefs.AUTOMATIC_HBM_STRING, false);
-
-        /* LISTENER FOR SETTINGS */
+        /************************ LISTENER FOR SETTINGS *********************************/
         prefs.registerOnSharedPreferenceChangeListener(new SharedPrefChangeListener());
+        /********************************************************************************/
 
         setHbm(false); // start app with hbm false
     }
@@ -118,7 +115,7 @@ public class SensorService extends Service implements SensorEventListener {
         });
     }
 
-    private void setHbm(boolean toEnable) {
+    private void setHbm(final boolean toEnable) {
         Log.v("HBM SERVICE","setHbm(): "+toEnable);
 
         if (toEnable) {
@@ -130,7 +127,7 @@ public class SensorService extends Service implements SensorEventListener {
         }
     }
 
-    private void executeShellCmd(String cmd) {
+    private void executeShellCmd(final String cmd) {
         try {
             runtimeProcessOutputStream.write(((cmd + "\n").getBytes()));
             runtimeProcessOutputStream.flush();
@@ -173,6 +170,10 @@ public class SensorService extends Service implements SensorEventListener {
         if(!prefs.contains(SharedPrefs.SCREEN_ACTIVATED)) {
             prefs.edit().putBoolean(SharedPrefs.SCREEN_ACTIVATED,true).commit();
         }
+
+        luxActivationLimit = prefs.getInt(SharedPrefs.LUX_ACTIVATION_LIMIT_STRING, SharedPrefs.DEFAULT_ACTIVATION_LIMIT);
+        luxDeactivationLimit = prefs.getInt(SharedPrefs.LUX_DEACTIVATION_LIMIT_STRING, SharedPrefs.DEFAULT_DEACTIVATION_LIMIT); // user-definable variable. when lux drops under this value, hbm will be deactivated
+        automaticHbmModeEnabled = prefs.getBoolean(SharedPrefs.AUTOMATIC_HBM_STRING, false);
     }
 
     /**************************** SERVICE BINDING *********************************/
