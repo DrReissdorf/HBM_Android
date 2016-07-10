@@ -30,7 +30,7 @@
             android:name=".SensorService"
             android:enabled="true"
             android:exported="true"
-            android:process=":remote" />
+        />
 
         <activity android:name=".AutomaticSettingsActivity"></activity>
     </application>
