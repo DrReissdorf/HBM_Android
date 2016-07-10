@@ -45,7 +45,12 @@ public class SensorService extends Service implements SensorEventListener {
 
     @Override
     public void onCreate() {
-        Log.v("DEMO","##### Service - onCreate() #####");
+        Log.v("HBM","##### Service - onCreate() #####");
+
+        if(!isRunning) {
+            postToastOnMainThread(getString(R.string.service_running_toast_text));
+            isRunning = true;
+        }
 
         /************************** SENSOR LISTENER ************************************/
         SensorManager mSensorManager;
@@ -86,6 +91,7 @@ public class SensorService extends Service implements SensorEventListener {
 
     @Override
     public void onDestroy() {
+        Log.v("HBM","##### Service - onDestroy() #####");
         super.onDestroy();
         unregisterReceiver(screenBroadcastReceiver);
     }
@@ -99,10 +105,6 @@ public class SensorService extends Service implements SensorEventListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.v("HBM","##### Service - onStartCommand() #####");
-        if(!isRunning) {
-            postToastOnMainThread(getString(R.string.service_running_toast_text));
-            isRunning = true;
-        }
         return START_STICKY; // We want this service to continue running until it is explicitly stopped, so return sticky.
     }
 
@@ -133,7 +135,7 @@ public class SensorService extends Service implements SensorEventListener {
             runtimeProcessOutputStream.write(((cmd + "\n").getBytes()));
             runtimeProcessOutputStream.flush();
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
 
