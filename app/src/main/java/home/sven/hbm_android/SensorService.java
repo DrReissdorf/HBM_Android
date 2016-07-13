@@ -22,23 +22,17 @@ import java.io.OutputStream;
 import home.sven.hbm_android.broadcast.BootBroadcastReceiver;
 
 public class SensorService extends Service implements SensorEventListener {
+    private boolean isRunning = false; //true, if service was running
+
     /* BROADCAST RECEIVER */
     private final BroadcastReceiver screenBroadcastReceiver = new ScreenBroadcastReceiver();
-
-    /* SENSOR VARIABLE */
-    private float lux; // light sensor will store its value in this variable
-    private boolean isRunning = false;
 
     /* SHARED PREFERENCES */
     private SharedPreferences prefs;
 
     /* HBM VARIABLES */
-    private Process runtimeProcess;
     private OutputStream runtimeProcessOutputStream;
 
-    private int luxActivationLimit;
-    private int luxDeactivationLimit; // user-definable variable. when lux drops under this value, hbm will be deactivated
-    private boolean automaticHbmModeEnabled;
     private boolean isScreenOn = true;
     private boolean isHbmOn = false;
 
@@ -67,6 +61,7 @@ public class SensorService extends Service implements SensorEventListener {
 
         /************************** ASK FOR ROOT ACCESS *********************************/
         try {
+            Process runtimeProcess;
             runtimeProcess = Runtime.getRuntime().exec("su");
             runtimeProcessOutputStream = runtimeProcess.getOutputStream();
         } catch (IOException e) {
@@ -77,10 +72,6 @@ public class SensorService extends Service implements SensorEventListener {
         /************************ INIT SHARED PREFERENCES *******************************/
         prefs = getSharedPreferences(SharedPrefs.SHARED_PREFS_KEY,MODE_PRIVATE);
         initSettings(prefs);
-        /********************************************************************************/
-
-        /************************ LISTENER FOR SETTINGS *********************************/
-        prefs.registerOnSharedPreferenceChangeListener(new SharedPrefChangeListener());
         /********************************************************************************/
 
         setHbm(false); // start app with hbm false
@@ -141,13 +132,13 @@ public class SensorService extends Service implements SensorEventListener {
 
     @Override
     public final void onSensorChanged(SensorEvent event) {
-        lux = event.values[0];
+        int lux = (int)event.values[0];
 
-        if(isScreenOn && automaticHbmModeEnabled) {
-            if(lux > luxActivationLimit && !isHbmOn) {
+        if(isScreenOn && prefs.getBoolean(SharedPrefs.AUTOMATIC_HBM_STRING, false)) {
+            if(lux > prefs.getInt(SharedPrefs.LUX_ACTIVATION_LIMIT_STRING, SharedPrefs.DEFAULT_ACTIVATION_LIMIT) && !isHbmOn) {
                 setHbm(true);
             } else {
-                if(lux <= luxDeactivationLimit && isHbmOn) {
+                if(lux <= prefs.getInt(SharedPrefs.LUX_DEACTIVATION_LIMIT_STRING, SharedPrefs.DEFAULT_DEACTIVATION_LIMIT) && isHbmOn) {
                     setHbm(false);
                 }
             }
@@ -170,10 +161,6 @@ public class SensorService extends Service implements SensorEventListener {
         if(!prefs.contains(SharedPrefs.SCREEN_ACTIVATED)) {
             prefs.edit().putBoolean(SharedPrefs.SCREEN_ACTIVATED,true).commit();
         }
-
-        luxActivationLimit = prefs.getInt(SharedPrefs.LUX_ACTIVATION_LIMIT_STRING, SharedPrefs.DEFAULT_ACTIVATION_LIMIT);
-        luxDeactivationLimit = prefs.getInt(SharedPrefs.LUX_DEACTIVATION_LIMIT_STRING, SharedPrefs.DEFAULT_DEACTIVATION_LIMIT); // user-definable variable. when lux drops under this value, hbm will be deactivated
-        automaticHbmModeEnabled = prefs.getBoolean(SharedPrefs.AUTOMATIC_HBM_STRING, false);
     }
 
     /**************************** SERVICE BINDING *********************************/
@@ -208,29 +195,6 @@ public class SensorService extends Service implements SensorEventListener {
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 isScreenOn = true;
                 Log.v("Hbm","screen activated");
-            }
-        }
-    }
-
-    private class SharedPrefChangeListener implements SharedPreferences.OnSharedPreferenceChangeListener {
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            switch(key) {
-                case SharedPrefs.LUX_ACTIVATION_LIMIT_STRING:
-                    Log.v("Hbm","Shared Prefs: LUX_ACTIVATION_LIMIT changed");
-                    luxActivationLimit = prefs.getInt(SharedPrefs.LUX_ACTIVATION_LIMIT_STRING, SharedPrefs.DEFAULT_ACTIVATION_LIMIT);
-                    break;
-
-                case SharedPrefs.LUX_DEACTIVATION_LIMIT_STRING:
-                    Log.v("Hbm","Shared Prefs: LUX_DEACTIVATION_LIMIT changed");
-                    luxDeactivationLimit = prefs.getInt(SharedPrefs.LUX_DEACTIVATION_LIMIT_STRING, SharedPrefs.DEFAULT_DEACTIVATION_LIMIT);
-                    break;
-
-                case SharedPrefs.AUTOMATIC_HBM_STRING:
-                    Log.v("Hbm","Shared Prefs: AUTOMATIC_HBM changed");
-                    automaticHbmModeEnabled = prefs.getBoolean(SharedPrefs.AUTOMATIC_HBM_STRING, false);
-                    setHbm(false);
-                    break;
             }
         }
     }

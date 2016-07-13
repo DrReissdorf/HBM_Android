@@ -19,19 +19,12 @@ import android.widget.TextView;
 import eu.chainfire.libsuperuser.Shell;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
-    private final Context context = this;
-    private final int UPDATE_LIGHT_VALUE_SLEEP = 500;
-
     private TextView luxTextView;
     private Switch automaticHbmSwitch;
     private Button button_hbm_on;
     private Button button_hbm_off;
 
     private SharedPreferences prefs;
-
-    private int lux;
-
-    private UpdateThread updateThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     button_hbm_off.setEnabled(true);
                     button_hbm_on.setVisibility(View.VISIBLE);
                     button_hbm_off.setVisibility(View.VISIBLE);
+                    setHbm(false);
                 }
 
                 Log.v("HBM SERVICE","HBM-Auto-Mode: "+isChecked);
@@ -87,14 +81,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onResume() {
         super.onResume();
         Log.v("HBM","onResume()");
-        updateThread = new UpdateThread();
-        updateThread.start();
     }
 
     public void onPause() {
         Log.v("HBM","onPause()");
         super.onPause();
-        updateThread.stopThread();
     }
 
     public void onDestroy() {
@@ -113,8 +104,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void startSensorService() {
-        Intent serviceIntent = new Intent(context, SensorService.class);
-        context.startService(serviceIntent);
+        Intent serviceIntent = new Intent(this, SensorService.class);
+        this.startService(serviceIntent);
     }
 
     public void buttonClickListener(View v) {
@@ -147,43 +138,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        lux = (int)event.values[0];
+        luxTextView.setText(getString(R.string.lux_sensor_string)+" "+(int)event.values[0]);
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
-
-    private void setLuxText(String text) {
-        luxTextView.setText(text);
-    }
-
-    private class UpdateThread extends Thread {
-        private boolean exit = false;
-
-        public void run() {
-            while(!exit) {
-                sleep(UPDATE_LIGHT_VALUE_SLEEP);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setLuxText(getString(R.string.lux_sensor_string)+" "+lux);
-                    }
-                });
-            }
-        }
-
-        private void stopThread() {
-            exit = true;
-        }
-
-        private void sleep(int millis) {
-            try {
-                Thread.sleep(millis);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 }
