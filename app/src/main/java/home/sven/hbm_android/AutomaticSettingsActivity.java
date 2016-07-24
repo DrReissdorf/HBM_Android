@@ -17,13 +17,7 @@ import android.widget.Switch;
 
 public class AutomaticSettingsActivity extends AppCompatActivity {
     private final Context context = this;
-    private EditText luxActivationLimitEditText;
-    private EditText luxDeactivationLimitEditText;
     private Switch autobootServiceSwitch;
-
-    private ImageButton autoboot_imagebutton;
-    private ImageButton hbm_on_imagebutton;
-    private ImageButton hbm_off_imagebutton;
 
     private SharedPreferences prefs;
 
@@ -39,24 +33,21 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
     }
 
     private void initInformation() {
-        autoboot_imagebutton = (ImageButton)findViewById(R.id.autoboot_imagebutton);
-        autoboot_imagebutton.setOnClickListener(new View.OnClickListener() {
+        (findViewById(R.id.autoboot_imagebutton)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alertWithOkButton(context,"",getString(R.string.autoboot_setting_infotext));
             }
         });
 
-        hbm_on_imagebutton = (ImageButton)findViewById(R.id.hbm_on_imagebutton);
-        hbm_on_imagebutton.setOnClickListener(new View.OnClickListener() {
+        (findViewById(R.id.hbm_on_imagebutton)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alertWithOkButton(context,"",getString(R.string.hbm_on_setting_infotext));
             }
         });
 
-        hbm_off_imagebutton = (ImageButton)findViewById(R.id.hbm_off_imagebutton);
-        hbm_off_imagebutton.setOnClickListener(new View.OnClickListener() {
+        (findViewById(R.id.hbm_off_imagebutton)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alertWithOkButton(context,"",getString(R.string.hbm_off_setting_infotext));
@@ -65,6 +56,9 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
     }
 
     private void initEditables() {
+        EditText luxActivationLimitEditText;
+        EditText luxDeactivationLimitEditText;
+
         autobootServiceSwitch = (Switch) findViewById(R.id.autobootServiceSwitch);
         autobootServiceSwitch.setChecked(prefs.getBoolean(SharedPrefs.SERVICE_AUTO_BOOT,false));
         autobootServiceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -85,8 +79,8 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 int actInt;
 
-                if(luxActivationLimitEditText.getText().toString().equals("")) actInt = 999999;
-                else  actInt = Integer.valueOf(luxActivationLimitEditText.getText().toString());
+                if(s.toString().equals("")) actInt = 999999;
+                else  actInt = Integer.valueOf(s.toString());
 
                 Log.v("HBM","Settings: values for ACTIVATION-LIMIT changed:"+actInt);
                 prefs.edit().putInt(SharedPrefs.LUX_ACTIVATION_LIMIT_STRING,actInt).commit();
@@ -103,8 +97,8 @@ public class AutomaticSettingsActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 int deactInt;
 
-                if(luxDeactivationLimitEditText.getText().toString().equals("")) deactInt = 0;
-                else  deactInt = Integer.valueOf(luxDeactivationLimitEditText.getText().toString());
+                if(s.toString().equals("")) deactInt = 0;
+                else  deactInt = Integer.valueOf(s.toString());
 
                 Log.v("HBM","Settings: values for DEACTIVATION-LIMIT changed:"+deactInt);
                 prefs.edit().putInt(SharedPrefs.LUX_DEACTIVATION_LIMIT_STRING,deactInt).commit();
