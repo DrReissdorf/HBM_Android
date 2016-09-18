@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     button_hbm_off.setEnabled(false);
                     button_hbm_on.setVisibility(View.INVISIBLE);
                     button_hbm_off.setVisibility(View.INVISIBLE);
+                    setHbm(false);
                 }
                 else {
                     button_hbm_on.setEnabled(true);
