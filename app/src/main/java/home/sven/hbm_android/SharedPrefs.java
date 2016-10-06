@@ -9,6 +9,6 @@ public class SharedPrefs {
     public static final String SCREEN_ACTIVATED = "screen_activated";
 
     /* DEFAULTS */
-    public static final int DEFAULT_ACTIVATION_LIMIT = 2000; //standard value if no sharedpref is found
-    public static final int DEFAULT_DEACTIVATION_LIMIT = 800; //standard value if no sharedpref is found
+    public static final int DEFAULT_ACTIVATION_LIMIT = 1500; //standard value if no sharedpref is found
+    public static final int DEFAULT_DEACTIVATION_LIMIT = 600; //standard value if no sharedpref is found
 }
